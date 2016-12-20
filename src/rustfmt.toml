@@ -1,0 +1,7 @@
+fn_call_width=80
+struct_lit_style="Visual"
+reorder_imports=true
+match_block_trailing_comma=true
+single_line_if_else=true
+single_line_if=true
+fn_args_density="Compressed"
