@@ -159,7 +159,9 @@ impl Term {
                     buf.push(b);
                     match patterns.get(&buf) {
                         Some(_) => {
-                            match patterns.range(Excluded(&buf), Unbounded::<&Vec<u8>>).next() {
+                            match patterns.range::<Vec<u8>, _>((Excluded(&buf),
+                                                                Unbounded::<&Vec<u8>>))
+                                          .next() {
                                 Some((ref k, _)) => {
                                     if buf.iter().enumerate().all(|(i, &x)| x == k[i]) {
                                         timeout = Duration::from_millis(1);

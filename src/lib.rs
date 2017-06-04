@@ -1,6 +1,3 @@
-#![feature(collections_bound)]
-#![feature(btree_range)]
-
 #[macro_use]
 extern crate lazy_static;
 extern crate term;
