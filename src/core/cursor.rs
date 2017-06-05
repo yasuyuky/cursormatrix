@@ -17,6 +17,7 @@ struct CursorCommand {
     pub left: String,
     pub right: String,
     pub clear: String,
+    pub delete: String,
 }
 
 #[allow(dead_code)]
@@ -27,7 +28,8 @@ impl CursorCommand {
                         down: terminfo.get_string("cud1"),
                         left: terminfo.get_string("cub1"),
                         right: terminfo.get_string("cuf1"),
-                        clear: terminfo.get_string("clear"), }
+                        clear: terminfo.get_string("clear"),
+                        delete: terminfo.get_string("dch1"), }
     }
 }
 
@@ -151,6 +153,10 @@ impl Cursor {
     pub fn move_home(&mut self) -> Result<(), Error> {
         let y = self.y;
         self.move_to(0, y)
+    }
+
+    pub fn delete_char(&mut self) -> Result<(), Error> {
+        Self::write_raw_command(&self.commands.delete)
     }
 
     fn write_raw_command(command: &String) -> Result<(), Error> {

@@ -80,7 +80,7 @@ mod tests {
             &Event::Arrow(Direction::Down) => term.cursor.move_down().unwrap(),
             &Event::Arrow(Direction::Left) => term.cursor.move_left().unwrap(),
             &Event::Arrow(Direction::Right) => term.cursor.move_right().unwrap(),
-            &Event::Delete => term.cursor.print_here(format!("\u{7f}",).as_str()).unwrap(),
+            &Event::Delete => term.cursor.delete_char().unwrap(),
             &Event::Chars(ref s) => term.cursor.print_here(format!("{}", s).as_str()).unwrap(),
             e => {
                 let pos = term.cursor.get_pos();
