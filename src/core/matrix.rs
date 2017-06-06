@@ -48,14 +48,14 @@ pub struct Matrix {
 impl Matrix {
     pub fn from_tty(tty: &Tty, cjk: bool) -> Result<Matrix, Error> {
         let mut matrix = Matrix { data: Vec::new(),
-                                  range: try!(TermSize::from_tty(tty)),
+                                  range: TermSize::from_tty(tty)?,
                                   cjk: cjk, };
-        try!(matrix.refresh());
+        matrix.refresh()?;
         Ok(matrix)
     }
 
     pub fn refresh(&mut self) -> Result<(), Error> {
-        try!(self.range.refresh());
+        self.range.refresh()?;
         self.data.resize(self.range.height,
                          iter::repeat(PadStr::from_str(" ", self.cjk))
                              .take(self.range.width)

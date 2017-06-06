@@ -44,11 +44,11 @@ pub struct Cursor {
 #[allow(dead_code)]
 impl Cursor {
     pub fn new(terminfo: &TermInfo, tty: &Tty, cjk: bool) -> Result<Self, Error> {
-        try!(Self::setup_sighandler());
+        Self::setup_sighandler()?;
         Ok(Cursor { x: 0,
                     y: 0,
                     commands: CursorCommand::from_terminfo(terminfo),
-                    matrix: try!(Matrix::from_tty(tty, cjk)), })
+                    matrix: Matrix::from_tty(tty, cjk)?, })
     }
 
     fn setup_sighandler() -> Result<(), Error> {
@@ -62,9 +62,9 @@ impl Cursor {
     }
 
     pub fn clear(&mut self) -> Result<(), Error> {
-        try!(self.check_winch());
-        try!(self.move_to(0, 0));
-        try!(Self::write_raw_command(&self.commands.clear));
+        self.check_winch()?;
+        self.move_to(0, 0)?;
+        Self::write_raw_command(&self.commands.clear)?;
         self.matrix.clear()
     }
 
@@ -76,29 +76,29 @@ impl Cursor {
         if SIGWINCH_RECIEVED.load(Ordering::SeqCst) {
             SIGWINCH_RECIEVED.store(false, Ordering::SeqCst);
             let (x, y) = self.get_pos();
-            try!(self.matrix.refresh());
-            try!(self.rewrite_matrix());
-            try!(self.move_to(x, y))
+            self.matrix.refresh()?;
+            self.rewrite_matrix()?;
+            self.move_to(x, y)?
         }
         Ok(())
     }
 
     fn rewrite_matrix(&mut self) -> Result<(), Error> {
-        try!(Self::write_raw_command(&self.commands.clear));
+        Self::write_raw_command(&self.commands.clear)?;
         let w = self.matrix.range.width;
         for (i, l) in self.matrix.get_lines().iter().enumerate() {
-            try!(self.print_fill(0, i, l, w))
+            self.print_fill(0, i, l, w)?
         }
         Ok(())
     }
 
     pub fn print_fill(&mut self, x: usize, y: usize, s: &str, w: usize) -> Result<(), Error> {
-        try!(self.check_winch());
+        self.check_winch()?;
         let rs = s.replace(|c| ['\n', '\r'].iter().any(|r| c == *r), "");
         let (end, final_s) = self.matrix.put_buffer(x, y, w, &rs);
-        try!(self.move_to(x, y));
-        try!(stdout().write_fmt(format_args!("{}", final_s)));
-        try!(self.move_to(end, y));
+        self.move_to(x, y)?;
+        stdout().write_fmt(format_args!("{}", final_s))?;
+        self.move_to(end, y)?;
         stdout().flush()
     }
 
@@ -129,7 +129,7 @@ impl Cursor {
 
     pub fn move_down(&mut self) -> Result<(), Error> {
         Ok(self.y = if self.y < self.matrix.range.height - 1 {
-            try!(Self::write_raw_command(&self.commands.down));
+            Self::write_raw_command(&self.commands.down)?;
             self.y + 1
         } else {
             self.y
@@ -143,7 +143,7 @@ impl Cursor {
 
     pub fn move_right(&mut self) -> Result<(), Error> {
         Ok(self.x = if self.x < self.matrix.range.width - 1 {
-            try!(Self::write_raw_command(&self.commands.right));
+            Self::write_raw_command(&self.commands.right)?;
             self.x + 1
         } else {
             self.x
@@ -160,13 +160,13 @@ impl Cursor {
     }
 
     fn write_raw_command(command: &String) -> Result<(), Error> {
-        try!(stdout().write_fmt(format_args!("{}", command)));
+        stdout().write_fmt(format_args!("{}", command))?;
         stdout().flush()
     }
 
     fn write_command_with_args(command: &String, args: &Vec<usize>) -> Result<(), Error> {
         let s = TermInfo::format(command, args);
-        try!(stdout().write_fmt(format_args!("{}", s)));
+        stdout().write_fmt(format_args!("{}", s))?;
         stdout().flush()
     }
 }

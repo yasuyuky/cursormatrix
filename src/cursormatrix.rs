@@ -38,23 +38,23 @@ impl Term {
         let terminfo = TermInfo::new();
         let tty = Tty::new();
         let mut term = Term { pattern_dict: Self::create_pattern_dict(&terminfo),
-                              cursor: try!(Cursor::new(&terminfo, &tty, cjk)),
+                              cursor: Cursor::new(&terminfo, &tty, cjk)?,
                               terminfo: terminfo,
                               termioscond: TermiosCond::from_tty(&tty),
                               tty: tty, };
-        try!(term.write_raw_command("smcup"));
-        try!(term.cursor.clear());
+        term.write_raw_command("smcup")?;
+        term.cursor.clear()?;
         Ok(term)
     }
 
     fn write_raw_command(&mut self, command: &str) -> Result<(), Error> {
-        try!(stdout().write_fmt(format_args!("{}", self.terminfo.get_string(command))));
+        stdout().write_fmt(format_args!("{}", self.terminfo.get_string(command)))?;
         stdout().flush()
     }
 
     fn write_command_with_args(&mut self, command: &str, args: &Vec<usize>) -> Result<(), Error> {
         let s = TermInfo::format(&self.terminfo.get_string(command), args);
-        try!(stdout().write_fmt(format_args!("{}", s)));
+        stdout().write_fmt(format_args!("{}", s))?;
         stdout().flush()
     }
 
@@ -87,7 +87,7 @@ impl Term {
                     return Ok(Event::TimeOut);
                 },
                 _ => {
-                    try!(self.tty.read_to_end(&mut buf));
+                    self.tty.read_to_end(&mut buf)?;
                     assert!(buf.len() > 0);
                     match Self::convert_to_event(&self.pattern_dict, &buf) {
                         Ok(e) => return Ok(e),
@@ -136,7 +136,7 @@ impl Term {
                     },
                     _ => {
                         let mut buf = Vec::<u8>::new();
-                        try!(self.tty.read_to_end(&mut buf));
+                        self.tty.read_to_end(&mut buf)?;
                         for b in buf.iter() {
                             btx.send(b.clone()).unwrap()
                         }
