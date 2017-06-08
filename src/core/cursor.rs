@@ -92,17 +92,16 @@ impl Cursor {
         Ok(())
     }
 
-    pub fn print_fill(&mut self, x: usize, y: usize, s: &str, w: usize) -> Result<(), Error> {
-        self.check_winch()?;
+    fn print_fill(&mut self, x: usize, y: usize, s: &str, w: usize) -> Result<(), Error> {
         let rs = s.replace(|c| ['\n', '\r'].iter().any(|r| c == *r), "");
         let (end, final_s) = self.matrix.put_buffer(x, y, w, &rs);
-        self.move_to(x, y)?;
         stdout().write_fmt(format_args!("{}", final_s))?;
         self.move_to(end, y)?;
         stdout().flush()
     }
 
     pub fn print_fill_here(&mut self, s: &str, w: usize) -> Result<(), Error> {
+        self.check_winch()?;
         let (x, y) = self.get_pos();
         self.print_fill(x, y, s, w)
     }
