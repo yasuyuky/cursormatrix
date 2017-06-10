@@ -17,7 +17,8 @@ struct CursorCommand {
     pub left: String,
     pub right: String,
     pub clear: String,
-    pub delete: String,
+    pub delete_char: String,
+    pub delete_line: String,
 }
 
 #[allow(dead_code)]
@@ -29,7 +30,9 @@ impl CursorCommand {
                         left: terminfo.get_string("cub1"),
                         right: terminfo.get_string("cuf1"),
                         clear: terminfo.get_string("clear"),
-                        delete: terminfo.get_string("dch1"), }
+                        delete_char: terminfo.get_string("dch1"),
+                        delete_line: terminfo.get_string("dl1"),
+                    }
     }
 }
 
@@ -161,7 +164,11 @@ impl Cursor {
     }
 
     pub fn delete_char(&mut self) -> Result<(), Error> {
-        Self::write_raw_command(&self.commands.delete)
+        Self::write_raw_command(&self.commands.delete_char)
+    }
+
+    pub fn delete_line(&mut self) -> Result<(), Error> {
+        Self::write_raw_command(&self.commands.delete_line)
     }
 
     fn write_raw_command(command: &String) -> Result<(), Error> {
