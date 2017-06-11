@@ -6,6 +6,7 @@ extern crate libc;
 extern crate crossbeam;
 extern crate regex;
 extern crate unicode_width;
+extern crate unicode_normalization;
 
 mod cursormatrix;
 mod events;
@@ -81,7 +82,10 @@ mod tests {
             &Event::Arrow(Direction::Left) => term.cursor.move_left().unwrap(),
             &Event::Arrow(Direction::Right) => term.cursor.move_right().unwrap(),
             &Event::Delete => term.cursor.delete_char().unwrap(),
-            &Event::Chars(ref s) => term.cursor.print_here(format!("{}", s).as_str()).unwrap(),
+            &Event::Chars(ref s) => {
+                use unicode_normalization::UnicodeNormalization;
+                term.cursor.print_here(&format!("{}", s.nfkc().collect::<String>())).unwrap();
+            },
             e => {
                 let pos = term.cursor.get_pos();
                 term.cursor.print_here(format!("e: {:?}, pos{:?}", e, pos).as_str()).unwrap();
