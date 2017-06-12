@@ -77,10 +77,12 @@ mod tests {
             &Event::Ctrl('L') => term.cursor.clear().unwrap(),
             &Event::Ctrl('R') => term.cursor.reload().unwrap(),
             &Event::Ctrl('A') => term.cursor.move_home().unwrap(),
+            &Event::Ctrl('E') => term.cursor.move_end().unwrap(),
             &Event::Arrow(Direction::Up) => term.cursor.move_up().unwrap(),
             &Event::Arrow(Direction::Down) => term.cursor.move_down().unwrap(),
             &Event::Arrow(Direction::Left) => term.cursor.move_left().unwrap(),
             &Event::Arrow(Direction::Right) => term.cursor.move_right().unwrap(),
+            &Event::Ctrl('D') => term.cursor.delete_char().unwrap(),
             &Event::Delete => term.cursor.delete_char().unwrap(),
             &Event::Chars(ref s) => {
                 use unicode_normalization::UnicodeNormalization;
