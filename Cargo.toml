@@ -1,7 +1,7 @@
 [package]
 name = "cursormatrix"
 version = "0.1.0"
-authors = ["yasuyuky <yasuyuki.ymd@gmail.com>"]
+authors = ["Yasuyuki YAMADA <yasuyuki.ymd@gmail.com>"]
 
 [dependencies]
 term = "0.4.4"
