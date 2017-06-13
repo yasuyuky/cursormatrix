@@ -171,6 +171,12 @@ impl Cursor {
         Self::write_raw_command(&self.commands.delete_line)
     }
 
+    pub fn backspace(&mut self) -> Result<(), Error> {
+        if self.x == 0 { return Ok(()); }
+        self.move_left()?;
+        self.delete_char()
+    }
+
     fn write_raw_command(command: &String) -> Result<(), Error> {
         stdout().write_fmt(format_args!("{}", command))?;
         stdout().flush()

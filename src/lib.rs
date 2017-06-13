@@ -84,6 +84,7 @@ mod tests {
             &Event::Arrow(Direction::Right) => term.cursor.move_right().unwrap(),
             &Event::Ctrl('D') => term.cursor.delete_char().unwrap(),
             &Event::Delete => term.cursor.delete_char().unwrap(),
+            &Event::BackSpace => term.cursor.backspace().unwrap(),
             &Event::Chars(ref s) => {
                 use unicode_normalization::UnicodeNormalization;
                 term.cursor.print_here(&format!("{}", s.nfkc().collect::<String>())).unwrap();
