@@ -1,0 +1,9 @@
+version: 2
+jobs:
+  build:
+    working_directory: /tmp/cursormatrix
+    docker:
+      - image: yasuyuky/rust-stable
+    steps:
+      - checkout
+      - run: cargo build
