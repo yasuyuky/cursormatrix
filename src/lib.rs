@@ -15,14 +15,14 @@ mod core;
 #[cfg(test)]
 mod tests {
 
-    use term::terminfo::TermInfo;
-    use std::sync::mpsc::channel;
-    use std::time::Duration;
-    use std::thread;
     use cursormatrix;
     use events::*;
-    use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
     use std::str::FromStr;
+    use std::sync::mpsc::channel;
+    use std::thread;
+    use std::time::Duration;
+    use term::terminfo::TermInfo;
+    use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
     #[test]
     fn test_term() {
@@ -52,7 +52,9 @@ mod tests {
 
         let terminfo = term.terminfo.clone();
         let dic = term.pattern_dict.clone();
-        let pad_str = term.cursor.matrix.create_pad_str(&String::from_str("y͛amaday͛").unwrap());
+        let pad_str = term.cursor.matrix.create_pad_str(
+            &String::from_str("y͛amaday͛").unwrap(),
+        );
         drop(term);
         view_terminfo(&terminfo.info);
         println!("{:?}\tW:{:?}", 'あ', UnicodeWidthChar::width_cjk('あ'));
@@ -87,11 +89,15 @@ mod tests {
             &Event::BackSpace => term.cursor.backspace().unwrap(),
             &Event::Chars(ref s) => {
                 use unicode_normalization::UnicodeNormalization;
-                term.cursor.print_here(&format!("{}", s.nfkc().collect::<String>())).unwrap();
+                term.cursor
+                    .print_here(&format!("{}", s.nfkc().collect::<String>()))
+                    .unwrap();
             },
             e => {
                 let pos = term.cursor.get_pos();
-                term.cursor.print_here(format!("e: {:?}, pos{:?}", e, pos).as_str()).unwrap();
+                term.cursor
+                    .print_here(format!("e: {:?}, pos{:?}", e, pos).as_str())
+                    .unwrap();
             },
         }
         true

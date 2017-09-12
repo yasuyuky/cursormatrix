@@ -1,18 +1,18 @@
-use std::time::Duration;
+use core::{Cursor, TermInfo, TermiosCond, Tty};
+use crossbeam;
+
+use events::{CTRL_KEY_DICT, DEFAULT_KEY_DICT, Event, TERMINFO_KEY_DICT};
+
+use libc;
+use std::collections::BTreeMap;
+use std::collections::Bound::*;
 use std::io::{Error, ErrorKind, Write, stdout};
 use std::mem;
 use std::os::unix::io::AsRawFd;
 use std::ptr;
-use std::collections::BTreeMap;
 use std::string::FromUtf8Error;
 use std::sync::mpsc::{Receiver, Sender, channel};
-use std::collections::Bound::*;
-
-use libc;
-use crossbeam;
-
-use events::{CTRL_KEY_DICT, DEFAULT_KEY_DICT, Event, TERMINFO_KEY_DICT};
-use core::{Cursor, TermInfo, TermiosCond, Tty};
+use std::time::Duration;
 
 #[allow(dead_code)]
 #[derive(Clone)]
@@ -48,7 +48,10 @@ impl Term {
     }
 
     fn write_raw_command(&mut self, command: &str) -> Result<(), Error> {
-        stdout().write_fmt(format_args!("{}", self.terminfo.get_string(command)))?;
+        stdout().write_fmt(format_args!(
+            "{}",
+            self.terminfo.get_string(command)
+        ))?;
         stdout().flush()
     }
 
@@ -100,7 +103,7 @@ impl Term {
     }
 
     pub fn get_input_async(&mut self, maybe_timeout: Option<Duration>, etx: Sender<Event>)
-                           -> Result<(), Error> {
+        -> Result<(), Error> {
 
         crossbeam::scope(|scope| {
             let (btx, brx) = channel::<u8>();
@@ -159,16 +162,16 @@ impl Term {
                     buf.push(b);
                     match patterns.get(&buf) {
                         Some(_) => {
-                            match patterns.range::<Vec<u8>, _>((Excluded(&buf),
-                                                                Unbounded::<&Vec<u8>>))
-                                          .next() {
+                            match patterns
+                                .range::<Vec<u8>, _>((Excluded(&buf), Unbounded::<&Vec<u8>>))
+                                .next() {
                                 Some((ref k, _)) => {
                                     if buf.iter().enumerate().all(|(i, &x)| x == k[i]) {
                                         timeout = Duration::from_millis(1);
                                         continue 'recv_byte;
                                     } else {
                                         etx.send(Self::convert_to_event(&patterns, &buf).unwrap())
-                                           .unwrap();
+                                            .unwrap();
                                         buf.clear();
                                         timeout = Duration::from_millis(1000);
                                     }
@@ -203,25 +206,25 @@ impl Term {
     }
 
     fn create_pattern_dict(terminfo: &TermInfo) -> BTreeMap<Vec<u8>, Event> {
-        let terminfo_dict = terminfo.info
-                                    .strings
-                                    .iter()
-                                    .filter_map(|(k, v)| {
-                                        match TERMINFO_KEY_DICT.get(k) {
-                                            Some(e) => Some((v.clone(), e.clone())),
-                                            None => None,
-                                        }
-                                    })
-                                    .collect::<BTreeMap<Vec<u8>, Event>>();
-        CTRL_KEY_DICT.clone()
-                     .into_iter()
-                     .chain(DEFAULT_KEY_DICT.clone().into_iter())
-                     .chain(terminfo_dict.into_iter())
-                     .collect()
+        let terminfo_dict = terminfo
+            .info
+            .strings
+            .iter()
+            .filter_map(|(k, v)| match TERMINFO_KEY_DICT.get(k) {
+                Some(e) => Some((v.clone(), e.clone())),
+                None => None,
+            })
+            .collect::<BTreeMap<Vec<u8>, Event>>();
+        CTRL_KEY_DICT
+            .clone()
+            .into_iter()
+            .chain(DEFAULT_KEY_DICT.clone().into_iter())
+            .chain(terminfo_dict.into_iter())
+            .collect()
     }
 
     fn convert_to_event(pattern_dict: &BTreeMap<Vec<u8>, Event>, buf: &Vec<u8>)
-                        -> Result<Event, FromUtf8Error> {
+        -> Result<Event, FromUtf8Error> {
         match pattern_dict.get(buf) {
             Some(e) => return Ok(e.clone()),
             None => (),

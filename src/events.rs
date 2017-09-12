@@ -1,10 +1,10 @@
+use std::clone::Clone;
 use std::collections::BTreeMap;
 use std::str::FromStr;
-use std::clone::Clone;
 
 
 #[allow(dead_code)]
-#[derive(Clone,Debug,Eq,PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Event {
     Chars(String),
     Ctrl(char),
@@ -23,7 +23,7 @@ pub enum Event {
     TimeOut,
 }
 
-#[derive(Clone,Debug,Eq,PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Direction {
     Up,
     Down,

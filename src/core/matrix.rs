@@ -1,15 +1,15 @@
 extern crate unicode_width;
 use self::unicode_width::{UnicodeWidthChar as UWChar, UnicodeWidthStr as UWStr};
+
+use core::{TermSize, Tty};
+use std::collections::VecDeque;
+use std::io::Error;
 use std::iter;
 use std::iter::FromIterator;
 use std::str::FromStr;
-use std::collections::VecDeque;
-use std::io::Error;
-
-use core::{TermSize, Tty};
 
 #[allow(dead_code)]
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub enum PadStr {
     UStr(String, usize),
     Pad,
@@ -37,7 +37,7 @@ impl PadStr {
 }
 
 #[allow(dead_code)]
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct Matrix {
     data: Vec<Vec<PadStr>>,
     pub range: TermSize,
@@ -56,10 +56,12 @@ impl Matrix {
 
     pub fn refresh(&mut self) -> Result<(), Error> {
         self.range.refresh()?;
-        self.data.resize(self.range.height,
-                         iter::repeat(PadStr::from_str(" ", self.cjk))
-                             .take(self.range.width)
-                             .collect());
+        self.data.resize(
+            self.range.height,
+            iter::repeat(PadStr::from_str(" ", self.cjk))
+                .take(self.range.width)
+                .collect(),
+        );
         for ref mut d in self.data.iter_mut() {
             d.resize(self.range.width, PadStr::from_str(" ", self.cjk))
         }
@@ -72,28 +74,33 @@ impl Matrix {
     }
 
     fn get_width(&self, c: char) -> usize {
-        if self.cjk { UWChar::width_cjk(c).unwrap_or(0) } else { UWChar::width(c).unwrap_or(0) }
+        if self.cjk {
+            UWChar::width_cjk(c).unwrap_or(0)
+        } else {
+            UWChar::width(c).unwrap_or(0)
+        }
     }
 
     pub fn put_buffer(&mut self, x: usize, y: usize, w: usize, s: &String) -> (usize, String) {
         let ws = self.fill_line(s, w, ' ');
         let replace_data = self.create_pad_str(&ws);
-        let end = *[x + replace_data.len(), self.range.width].into_iter().min().unwrap();
+        let end = *[x + replace_data.len(), self.range.width]
+            .into_iter()
+            .min()
+            .unwrap();
         let new_vecpadstr = self.data[y]
-                                .iter()
-                                .enumerate()
-                                .filter_map(|(i, pad_uc)| {
-                                    if i < x {
-                                        Some(pad_uc.clone())
-                                    } else if i < x + replace_data.len() && i < self.range.width {
-                                        Some(replace_data[i - x].clone())
-                                    } else if i < self.range.width {
-                                        Some(pad_uc.clone())
-                                    } else {
-                                        None
-                                    }
-                                })
-                                .collect::<Vec<PadStr>>();
+            .iter()
+            .enumerate()
+            .filter_map(|(i, pad_uc)| if i < x {
+                Some(pad_uc.clone())
+            } else if i < x + replace_data.len() && i < self.range.width {
+                Some(replace_data[i - x].clone())
+            } else if i < self.range.width {
+                Some(pad_uc.clone())
+            } else {
+                None
+            })
+            .collect::<Vec<PadStr>>();
         self.data[y] = new_vecpadstr;
         (end, Self::get_partial_str_from_padstr(&self.data[y], x, end))
     }
@@ -107,8 +114,8 @@ impl Matrix {
 
     pub fn create_pad_str(&self, s: &String) -> Vec<PadStr> {
         let s_with_w = s.chars()
-                        .map(|c| (c.to_string(), self.get_width(c)))
-                        .collect::<Vec<(String, usize)>>();
+            .map(|c| (c.to_string(), self.get_width(c)))
+            .collect::<Vec<(String, usize)>>();
         let mut deq: VecDeque<PadStr> = VecDeque::new();
         for &(ref s, ref w) in s_with_w.iter() {
             match *w {
@@ -143,11 +150,9 @@ impl Matrix {
         };
         vecpadstr[start..end_]
             .iter()
-            .filter_map(|iu| {
-                match iu {
-                    &PadStr::UStr(ref u, _) => Some(u.clone()),
-                    &PadStr::Pad => None,
-                }
+            .filter_map(|iu| match iu {
+                &PadStr::UStr(ref u, _) => Some(u.clone()),
+                &PadStr::Pad => None,
             })
             .collect()
     }
@@ -163,6 +168,9 @@ impl Matrix {
                 return String::from_str(&s[..idx]).unwrap();
             }
         }
-        [s.as_str(), String::from_iter(iter::repeat(c).take(w - pos)).as_str()].join("")
+        [
+            s.as_str(),
+            String::from_iter(iter::repeat(c).take(w - pos)).as_str(),
+        ].join("")
     }
 }

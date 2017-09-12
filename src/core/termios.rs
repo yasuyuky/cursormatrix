@@ -1,6 +1,6 @@
+use core::Tty;
 use std::os::unix::io::AsRawFd;
 use termios::*;
-use core::Tty;
 
 #[derive(Clone)]
 pub struct TermiosCond {

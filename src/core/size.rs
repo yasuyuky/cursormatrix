@@ -1,12 +1,11 @@
-
-use std::io::Error;
-use std::os::unix::io::AsRawFd;
-use std::mem;
-use libc;
 use core::Tty;
+use libc;
+use std::io::Error;
+use std::mem;
+use std::os::unix::io::AsRawFd;
 
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct TermSize {
     tty: Tty,
     pub width: usize,
@@ -22,8 +21,8 @@ impl TermSize {
             return Err(Error::last_os_error());
         }
         Ok(TermSize { tty: tty.clone(),
-                      width: ws.ws_col as usize,
-                      height: ws.ws_row as usize, })
+                   width: ws.ws_col as usize,
+                   height: ws.ws_row as usize, })
     }
 
     pub fn refresh(&mut self) -> Result<(), Error> {

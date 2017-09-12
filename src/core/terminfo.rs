@@ -1,5 +1,5 @@
-use term::terminfo;
 use std::string::String;
+use term::terminfo;
 
 #[derive(Debug)]
 pub struct TermInfo {
@@ -10,11 +10,11 @@ pub struct TermInfo {
 impl TermInfo {
     pub fn new() -> Self {
         TermInfo { info: terminfo::TermInfo::from_env().unwrap_or({
-                       terminfo::TermInfo { names: Default::default(),
-                                            bools: Default::default(),
-                                            numbers: Default::default(),
-                                            strings: Default::default(), }
-                   }), }
+            terminfo::TermInfo { names: Default::default(),
+                                 bools: Default::default(),
+                                 numbers: Default::default(),
+                                 strings: Default::default(), }
+        }), }
     }
 
     pub fn get_string(&self, command: &str) -> String {
