@@ -210,7 +210,7 @@ impl Term {
             .info
             .strings
             .iter()
-            .filter_map(|(k, v)| match TERMINFO_KEY_DICT.get(&String::from(*k)) {
+            .filter_map(|(k, v)| match TERMINFO_KEY_DICT.get(*k) {
                 Some(e) => Some((v.clone(), e.clone())),
                 None => None,
             })
