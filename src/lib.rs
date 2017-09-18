@@ -4,7 +4,6 @@ extern crate term;
 extern crate termios;
 extern crate libc;
 extern crate crossbeam;
-extern crate regex;
 extern crate unicode_width;
 extern crate unicode_normalization;
 
