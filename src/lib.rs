@@ -31,13 +31,6 @@ mod tests {
             Err(_) => return,
         };
 
-        // term.cursor.print_fill(0, 0, "sync!!", 10);
-        // loop {
-        //     if !handle_event(&term.get_input(Some(Duration::from_secs(10))).unwrap(), &mut term) {
-        //         break;
-        //     };
-        // }
-
         let (etx, erx) = channel::<Event>();
         let mut t2 = term.clone();
         thread::spawn(move || t2.get_input_async(Some(Duration::from_secs(30)), etx));
@@ -49,26 +42,53 @@ mod tests {
             }
         }
 
+        assert!(true);
+    }
+
+    #[test]
+    fn test_term_sync() {
+        let mut term = match cursormatrix::Term::new() {
+            Ok(term) => term,
+            Err(_) => return,
+        };
+
+        term.cursor.print_fill_here("sync!!", 10).unwrap();
+        loop {
+            if !handle_event(&term.get_input(Some(Duration::from_secs(10))).unwrap(), &mut term) {
+                break;
+            };
+        }
+
+        assert!(true)
+    }
+
+    #[test]
+    fn test_show_info() {
+        let term = match cursormatrix::Term::new() {
+            Ok(term) => term,
+            Err(_) => return,
+        };
+
         let terminfo = term.terminfo.clone();
         let dic = term.pattern_dict.clone();
         let pad_str = term.cursor.matrix.create_pad_str(
             &String::from_str("y͛amaday͛").unwrap(),
         );
         drop(term);
+
         view_terminfo(&terminfo.info);
-        println!("{:?}\tW:{:?}", 'あ', UnicodeWidthChar::width_cjk('あ'));
-        println!("{:?}\tW:{:?}", '゙', UnicodeWidthChar::width_cjk('゙'));
-        println!("{:?}\tW:{:?}", '🌀', UnicodeWidthChar::width_cjk('🌀'));
-        println!("{:?}\tW:{:?}", "y͛amaday͛", UnicodeWidthStr::width_cjk("y͛amaday͛"));
+        println!("{:}\tW:{:?}", "あ", UnicodeWidthChar::width_cjk('あ'));
+        println!("{:}\tW:{:?}", "゙", UnicodeWidthChar::width_cjk('゙'));
+        println!("{:}\tW:{:?}", "🌀", UnicodeWidthChar::width_cjk('🌀'));
+        println!("{:}\tW:{:?}", "y͛amaday͛", UnicodeWidthStr::width_cjk("y͛amaday͛"));
         println!("{:?}", pad_str);
 
         for (k, v) in dic {
             println!("{:?}:{:?}", k, v);
         }
-
-        assert!(true);
-
+        assert!(true)
     }
+
 
     #[allow(dead_code)]
     fn handle_event(ev: &Event, term: &mut cursormatrix::Term) -> bool {
