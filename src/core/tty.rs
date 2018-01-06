@@ -11,11 +11,10 @@ pub struct Tty {
 #[allow(dead_code)]
 impl Tty {
     pub fn new() -> Self {
-        Tty { file: OpenOptions::new()
-                  .write(true)
-                  .read(true)
-                  .open("/dev/tty")
-                  .unwrap(), }
+        Tty { file: OpenOptions::new().write(true)
+                                      .read(true)
+                                      .open("/dev/tty")
+                                      .unwrap(), }
     }
 
     pub fn read_to_end(&mut self, buf: &mut Vec<u8>) -> Result<usize, Error> {
@@ -25,11 +24,10 @@ impl Tty {
 
 impl Clone for Tty {
     fn clone(&self) -> Self {
-        Tty { file: OpenOptions::new()
-                  .write(true)
-                  .read(true)
-                  .open("/dev/tty")
-                  .unwrap(), }
+        Tty { file: OpenOptions::new().write(true)
+                                      .read(true)
+                                      .open("/dev/tty")
+                                      .unwrap(), }
     }
 }
 

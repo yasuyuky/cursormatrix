@@ -1,10 +1,9 @@
 use core::{Matrix, TermInfo, Tty};
-
 use libc;
-use std::io::{Error, Write, stdout};
+use std::io::{stdout, Error, Write};
 use std::mem;
 use std::ptr;
-use std::sync::atomic::{ATOMIC_BOOL_INIT, AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
 use unicode_width::UnicodeWidthStr;
 
 static SIGWINCH_RECIEVED: AtomicBool = ATOMIC_BOOL_INIT;
@@ -48,9 +47,9 @@ impl Cursor {
     pub fn new(terminfo: &TermInfo, tty: &Tty, cjk: bool) -> Result<Self, Error> {
         Self::setup_sighandler()?;
         Ok(Cursor { x: 0,
-                 y: 0,
-                 commands: CursorCommand::from_terminfo(terminfo),
-                 matrix: Matrix::from_tty(tty, cjk)?, })
+                    y: 0,
+                    commands: CursorCommand::from_terminfo(terminfo),
+                    matrix: Matrix::from_tty(tty, cjk)?, })
     }
 
     fn setup_sighandler() -> Result<(), Error> {
@@ -129,14 +128,12 @@ impl Cursor {
     }
 
     pub fn move_down(&mut self) -> Result<(), Error> {
-        Ok(
-            self.y = if self.y < self.matrix.range.height - 1 {
-                Self::write_raw_command(&self.commands.down)?;
-                self.y + 1
-            } else {
-                self.y
-            },
-        )
+        Ok(self.y = if self.y < self.matrix.range.height - 1 {
+            Self::write_raw_command(&self.commands.down)?;
+            self.y + 1
+        } else {
+            self.y
+        })
     }
 
     pub fn move_left(&mut self) -> Result<(), Error> {
@@ -145,14 +142,12 @@ impl Cursor {
     }
 
     pub fn move_right(&mut self) -> Result<(), Error> {
-        Ok(
-            self.x = if self.x < self.matrix.range.width - 1 {
-                Self::write_raw_command(&self.commands.right)?;
-                self.x + 1
-            } else {
-                self.x
-            },
-        )
+        Ok(self.x = if self.x < self.matrix.range.width - 1 {
+            Self::write_raw_command(&self.commands.right)?;
+            self.x + 1
+        } else {
+            self.x
+        })
     }
 
     pub fn move_home(&mut self) -> Result<(), Error> {

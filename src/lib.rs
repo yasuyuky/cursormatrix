@@ -1,11 +1,11 @@
+extern crate crossbeam;
 #[macro_use]
 extern crate lazy_static;
+extern crate libc;
 extern crate term;
 extern crate termios;
-extern crate libc;
-extern crate crossbeam;
-extern crate unicode_width;
 extern crate unicode_normalization;
+extern crate unicode_width;
 
 mod cursormatrix;
 mod events;
@@ -25,7 +25,6 @@ mod tests {
 
     #[test]
     fn test_term() {
-
         let mut term = match cursormatrix::Term::new() {
             Ok(term) => term,
             Err(_) => return,
@@ -54,7 +53,9 @@ mod tests {
 
         term.cursor.print_fill_here("sync!!", 10).unwrap();
         loop {
-            if !handle_event(&term.get_input(Some(Duration::from_secs(10))).unwrap(), &mut term) {
+            if !handle_event(&term.get_input(Some(Duration::from_secs(10))).unwrap(),
+                             &mut term)
+            {
                 break;
             };
         }
@@ -71,16 +72,17 @@ mod tests {
 
         let terminfo = term.terminfo.clone();
         let dic = term.pattern_dict.clone();
-        let pad_str = term.cursor.matrix.create_pad_str(
-            &String::from_str("y͛amaday͛").unwrap(),
-        );
+        let pad_str = term.cursor.matrix
+                          .create_pad_str(&String::from_str("y͛amaday͛").unwrap());
         drop(term);
 
         view_terminfo(&terminfo.info);
         println!("{:}\tW:{:?}", "あ", UnicodeWidthChar::width_cjk('あ'));
         println!("{:}\tW:{:?}", "゙", UnicodeWidthChar::width_cjk('゙'));
         println!("{:}\tW:{:?}", "🌀", UnicodeWidthChar::width_cjk('🌀'));
-        println!("{:}\tW:{:?}", "y͛amaday͛", UnicodeWidthStr::width_cjk("y͛amaday͛"));
+        println!("{:}\tW:{:?}",
+                 "y͛amaday͛",
+                 UnicodeWidthStr::width_cjk("y͛amaday͛"));
         println!("{:?}", pad_str);
 
         for (k, v) in dic {
@@ -88,7 +90,6 @@ mod tests {
         }
         assert!(true)
     }
-
 
     #[allow(dead_code)]
     fn handle_event(ev: &Event, term: &mut cursormatrix::Term) -> bool {
@@ -108,24 +109,20 @@ mod tests {
             &Event::BackSpace => term.cursor.backspace().unwrap(),
             &Event::Chars(ref s) => {
                 use unicode_normalization::UnicodeNormalization;
-                term.cursor
-                    .print_here(&format!("{}", s.nfkc().collect::<String>()))
+                term.cursor.print_here(&format!("{}", s.nfkc().collect::<String>()))
                     .unwrap();
             },
             e => {
                 let pos = term.cursor.get_pos();
-                term.cursor
-                    .print_here(format!("e: {:?}, pos{:?}", e, pos).as_str())
+                term.cursor.print_here(format!("e: {:?}, pos{:?}", e, pos).as_str())
                     .unwrap();
             },
         }
         true
     }
 
-
     #[allow(dead_code)]
     fn view_terminfo(terminfo: &TermInfo) {
-
         println!("names:");
         for element in &terminfo.names {
             println!("names:{:?}", element);
@@ -140,10 +137,10 @@ mod tests {
         }
         println!("strings:");
         for element in &terminfo.strings {
-            println!("strings:{}\t{:?}", element.0, String::from_utf8(element.1.clone()).unwrap());
+            println!("strings:{}\t{:?}",
+                     element.0,
+                     String::from_utf8(element.1.clone()).unwrap());
         }
-
     }
-
 
 }

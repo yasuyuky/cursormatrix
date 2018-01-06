@@ -1,6 +1,5 @@
 extern crate unicode_width;
 use self::unicode_width::{UnicodeWidthChar as UWChar, UnicodeWidthStr as UWStr};
-
 use core::{TermSize, Tty};
 use std::collections::VecDeque;
 use std::io::Error;
@@ -56,12 +55,9 @@ impl Matrix {
 
     pub fn refresh(&mut self) -> Result<(), Error> {
         self.range.refresh()?;
-        self.data.resize(
-            self.range.height,
-            iter::repeat(PadStr::from_str(" ", self.cjk))
-                .take(self.range.width)
-                .collect(),
-        );
+        self.data.resize(self.range.height,
+                         iter::repeat(PadStr::from_str(" ", self.cjk)).take(self.range.width)
+                                                                      .collect());
         for ref mut d in self.data.iter_mut() {
             d.resize(self.range.width, PadStr::from_str(" ", self.cjk))
         }
@@ -84,53 +80,49 @@ impl Matrix {
     pub fn put_buffer(&mut self, x: usize, y: usize, w: usize, s: &String) -> (usize, String) {
         let ws = self.fill_line(s, w, ' ');
         let replace_data = self.create_pad_str(&ws);
-        let end = *[x + replace_data.len(), self.range.width]
-            .into_iter()
-            .min()
-            .unwrap();
-        let new_vecpadstr = self.data[y]
-            .iter()
-            .enumerate()
-            .filter_map(|(i, pad_uc)| if i < x {
-                Some(pad_uc.clone())
-            } else if i < x + replace_data.len() && i < self.range.width {
-                Some(replace_data[i - x].clone())
-            } else if i < self.range.width {
-                Some(pad_uc.clone())
-            } else {
-                None
-            })
-            .collect::<Vec<PadStr>>();
+        let end = *[x + replace_data.len(), self.range.width].into_iter()
+                                                             .min()
+                                                             .unwrap();
+        let new_vecpadstr = self.data[y].iter()
+                                        .enumerate()
+                                        .filter_map(|(i, pad_uc)| {
+                                                        if i < x {
+                                                            Some(pad_uc.clone())
+                                                        } else if i < x + replace_data.len() && i < self.range.width {
+                                                            Some(replace_data[i - x].clone())
+                                                        } else if i < self.range.width {
+                                                            Some(pad_uc.clone())
+                                                        } else {
+                                                            None
+                                                        }
+                                                    })
+                                        .collect::<Vec<PadStr>>();
         self.data[y] = new_vecpadstr;
         (end, Self::get_partial_str_from_padstr(&self.data[y], x, end))
     }
 
     pub fn get_lines(&self) -> Vec<String> {
-        self.data
-            .iter()
+        self.data.iter()
             .map(|l| Self::get_partial_str_from_padstr(l, 0, self.range.width))
             .collect()
     }
 
     pub fn create_pad_str(&self, s: &String) -> Vec<PadStr> {
-        let s_with_w = s.chars()
-            .map(|c| (c.to_string(), self.get_width(c)))
-            .collect::<Vec<(String, usize)>>();
+        let s_with_w = s.chars().map(|c| (c.to_string(), self.get_width(c)))
+                        .collect::<Vec<(String, usize)>>();
         let mut deq: VecDeque<PadStr> = VecDeque::new();
         for &(ref s, ref w) in s_with_w.iter() {
             match *w {
-                0 => {
-                    match deq.pop_back() {
-                        Some(PadStr::UStr(ref us, _)) => {
-                            deq.push_back(PadStr::from_str(&(us.clone() + s), self.cjk));
-                        },
-                        Some(PadStr::Pad) => {
-                            let i = deq.len() - 2;
-                            deq[i] = deq[i].push_str(s.as_str(), self.cjk);
-                            deq.push_back(PadStr::Pad)
-                        },
-                        None => deq.push_back(PadStr::from_str(s, self.cjk)),
-                    }
+                0 => match deq.pop_back() {
+                    Some(PadStr::UStr(ref us, _)) => {
+                        deq.push_back(PadStr::from_str(&(us.clone() + s), self.cjk));
+                    },
+                    Some(PadStr::Pad) => {
+                        let i = deq.len() - 2;
+                        deq[i] = deq[i].push_str(s.as_str(), self.cjk);
+                        deq.push_back(PadStr::Pad)
+                    },
+                    None => deq.push_back(PadStr::from_str(s, self.cjk)),
                 },
                 n => {
                     deq.push_back(PadStr::from_str(s, self.cjk));
@@ -148,13 +140,12 @@ impl Matrix {
             PadStr::UStr(_, 2) => end - 1,
             _ => end,
         };
-        vecpadstr[start..end_]
-            .iter()
-            .filter_map(|iu| match iu {
-                &PadStr::UStr(ref u, _) => Some(u.clone()),
-                &PadStr::Pad => None,
-            })
-            .collect()
+        vecpadstr[start..end_].iter()
+                              .filter_map(|iu| match iu {
+                                              &PadStr::UStr(ref u, _) => Some(u.clone()),
+                                              &PadStr::Pad => None,
+                                          })
+                              .collect()
     }
 
     pub fn fill_line(&self, s: &String, w: usize, c: char) -> String {
@@ -168,9 +159,7 @@ impl Matrix {
                 return String::from_str(&s[..idx]).unwrap();
             }
         }
-        [
-            s.as_str(),
-            String::from_iter(iter::repeat(c).take(w - pos)).as_str(),
-        ].join("")
+        [s.as_str(),
+         String::from_iter(iter::repeat(c).take(w - pos)).as_str()].join("")
     }
 }

@@ -2,7 +2,6 @@ use std::clone::Clone;
 use std::collections::BTreeMap;
 use std::str::FromStr;
 
-
 #[allow(dead_code)]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Event {
@@ -30,7 +29,6 @@ pub enum Direction {
     Left,
     Right,
 }
-
 
 lazy_static! {
 
