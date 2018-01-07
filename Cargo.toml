@@ -6,8 +6,8 @@ authors = ["Yasuyuki YAMADA <yasuyuki.ymd@gmail.com>"]
 [dependencies]
 term = "0.4.6"
 termios = "0.3.0"
-libc = "0.2.29"
+libc = "0.2.35"
 lazy_static = "1.0.0"
-crossbeam = "0.3.0"
+crossbeam = "0.3.2"
 unicode-width = "0.1.4"
 unicode-normalization = "0.1.5"
