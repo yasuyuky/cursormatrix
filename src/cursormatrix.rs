@@ -56,7 +56,7 @@ impl Term {
         stdout().flush()
     }
 
-    pub fn get_input(&mut self, maybe_timeout: Option<Duration>) -> Result<Event, Error> {
+    pub fn get_input_sync(&mut self, maybe_timeout: Option<Duration>) -> Result<Event, Error> {
         let timeout: *mut libc::timeval = match maybe_timeout {
             None => ptr::null_mut(),
             Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,

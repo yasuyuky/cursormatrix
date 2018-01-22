@@ -53,7 +53,7 @@ mod tests {
 
         term.cursor.print_fill_here("sync!!", 10).unwrap();
         loop {
-            if !handle_event(&term.get_input(Some(Duration::from_secs(10))).unwrap(),
+            if !handle_event(&term.get_input_sync(Some(Duration::from_secs(10))).unwrap(),
                              &mut term)
             {
                 break;
