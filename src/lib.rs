@@ -70,16 +70,9 @@ mod tests {
 
         let terminfo = term.terminfo.clone();
         let dic = term.pattern_dict.clone();
-        let pad_str = term.cursor.matrix
-                          .create_pad_str(&String::from_str("y͛amaday͛").unwrap());
         drop(term);
 
         view_terminfo(&terminfo.info);
-        println!("{:}\tW:{:?}", "あ", UnicodeWidthChar::width_cjk('あ'));
-        println!("{:}\tW:{:?}", "゙", UnicodeWidthChar::width_cjk('゙'));
-        println!("{:}\tW:{:?}", "🌀", UnicodeWidthChar::width_cjk('🌀'));
-        println!("{:}\tW:{:?}", "y͛amaday͛", UnicodeWidthStr::width_cjk("y͛amaday͛"));
-        println!("{:?}", pad_str);
 
         for (k, v) in dic {
             println!("{:?}:{:?}", k, v);
