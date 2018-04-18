@@ -111,18 +111,16 @@ impl Matrix {
         let mut deq: VecDeque<PadStr> = VecDeque::new();
         for &(ref s, ref w) in s_with_w.iter() {
             match *w {
-                0 => {
-                    match deq.pop_back() {
-                        Some(PadStr::UStr(ref us, _)) => {
-                            deq.push_back(PadStr::from_str(&(us.clone() + s), self.cjk));
-                        },
-                        Some(PadStr::Pad) => {
-                            let i = deq.len() - 2;
-                            deq[i] = deq[i].push_str(s.as_str(), self.cjk);
-                            deq.push_back(PadStr::Pad)
-                        },
-                        None => deq.push_back(PadStr::from_str(s, self.cjk)),
-                    }
+                0 => match deq.pop_back() {
+                    Some(PadStr::UStr(ref us, _)) => {
+                        deq.push_back(PadStr::from_str(&(us.clone() + s), self.cjk));
+                    },
+                    Some(PadStr::Pad) => {
+                        let i = deq.len() - 2;
+                        deq[i] = deq[i].push_str(s.as_str(), self.cjk);
+                        deq.push_back(PadStr::Pad)
+                    },
+                    None => deq.push_back(PadStr::from_str(s, self.cjk)),
                 },
                 n => {
                     deq.push_back(PadStr::from_str(s, self.cjk));
