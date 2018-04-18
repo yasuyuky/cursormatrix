@@ -68,13 +68,7 @@ impl Term {
         unsafe { libc::FD_SET(rawfd, &mut readfds) };
         let mut buf = Vec::<u8>::new();
         loop {
-            match unsafe {
-                      libc::select(rawfd + 1,
-                                   &mut readfds,
-                                   ptr::null_mut(),
-                                   ptr::null_mut(),
-                                   timeout)
-                  } {
+            match unsafe { libc::select(rawfd + 1, &mut readfds, ptr::null_mut(), ptr::null_mut(), timeout) } {
                 -1 => {
                     let err = Error::last_os_error();
                     match err.kind() {

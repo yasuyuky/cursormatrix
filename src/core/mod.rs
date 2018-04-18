@@ -1,9 +1,9 @@
-mod terminfo;
-mod tty;
-mod termios;
-mod matrix;
 mod cursor;
+mod matrix;
 mod size;
+mod terminfo;
+mod termios;
+mod tty;
 
 pub use core::cursor::*;
 pub use core::matrix::*;

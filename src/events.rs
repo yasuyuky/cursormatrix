@@ -31,12 +31,9 @@ pub enum Direction {
 }
 
 lazy_static! {
-
-    pub static ref CTRL_KEY_DICT : BTreeMap<Vec<u8>, Event> = {
-        (0u8..32).map(|x| (vec![x],Event::Ctrl((x+64) as char)) ).collect()
-    };
-
-    pub static ref TERMINFO_KEY_DICT : BTreeMap<String, Event> = {
+    pub static ref CTRL_KEY_DICT: BTreeMap<Vec<u8>, Event> =
+        { (0u8..32).map(|x| (vec![x], Event::Ctrl((x + 64) as char))).collect() };
+    pub static ref TERMINFO_KEY_DICT: BTreeMap<String, Event> = {
         [
           ("kcuu1",   Event::Arrow(Direction::Up)),
           ("kcud1",   Event::Arrow(Direction::Down)),
@@ -55,8 +52,7 @@ lazy_static! {
          .chain((0u8..64).map(|i| (format!("key_f{}",i), Event::Function(i))))
          .collect()
     };
-
-    pub static ref DEFAULT_KEY_DICT : BTreeMap<Vec<u8>, Event> = {
+    pub static ref DEFAULT_KEY_DICT: BTreeMap<Vec<u8>, Event> = {
         [
           ("\u{1b}[A", Event::Arrow(Direction::Up)),
           ("\u{1b}[B", Event::Arrow(Direction::Down)),
@@ -73,6 +69,4 @@ lazy_static! {
         ].iter().map(|&(k,ref v)| (k.chars().map(|c| c as u8).collect(),v.clone()))
          .collect()
     };
-
-
 }

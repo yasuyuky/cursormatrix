@@ -7,9 +7,9 @@ extern crate termios;
 extern crate unicode_normalization;
 extern crate unicode_width;
 
+mod core;
 mod cursormatrix;
 mod events;
-mod core;
 
 #[cfg(test)]
 mod tests {
@@ -53,9 +53,7 @@ mod tests {
 
         term.cursor.print_fill_here("sync!!", 10).unwrap();
         loop {
-            if !handle_event(&term.get_input_sync(Some(Duration::from_secs(10))).unwrap(),
-                             &mut term)
-            {
+            if !handle_event(&term.get_input_sync(Some(Duration::from_secs(10))).unwrap(), &mut term) {
                 break;
             };
         }
@@ -80,9 +78,7 @@ mod tests {
         println!("{:}\tW:{:?}", "あ", UnicodeWidthChar::width_cjk('あ'));
         println!("{:}\tW:{:?}", "゙", UnicodeWidthChar::width_cjk('゙'));
         println!("{:}\tW:{:?}", "🌀", UnicodeWidthChar::width_cjk('🌀'));
-        println!("{:}\tW:{:?}",
-                 "y͛amaday͛",
-                 UnicodeWidthStr::width_cjk("y͛amaday͛"));
+        println!("{:}\tW:{:?}", "y͛amaday͛", UnicodeWidthStr::width_cjk("y͛amaday͛"));
         println!("{:?}", pad_str);
 
         for (k, v) in dic {

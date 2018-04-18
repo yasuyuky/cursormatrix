@@ -80,9 +80,7 @@ impl Matrix {
     pub fn put_buffer(&mut self, x: usize, y: usize, w: usize, s: &String) -> (usize, String) {
         let ws = self.fill_line(s, w, ' ');
         let replace_data = self.create_pad_str(&ws);
-        let end = *[x + replace_data.len(), self.range.width].into_iter()
-                                                             .min()
-                                                             .unwrap();
+        let end = *[x + replace_data.len(), self.range.width].into_iter().min().unwrap();
         let new_vecpadstr = self.data[y].iter()
                                         .enumerate()
                                         .filter_map(|(i, pad_uc)| {
@@ -113,16 +111,18 @@ impl Matrix {
         let mut deq: VecDeque<PadStr> = VecDeque::new();
         for &(ref s, ref w) in s_with_w.iter() {
             match *w {
-                0 => match deq.pop_back() {
-                    Some(PadStr::UStr(ref us, _)) => {
-                        deq.push_back(PadStr::from_str(&(us.clone() + s), self.cjk));
-                    },
-                    Some(PadStr::Pad) => {
-                        let i = deq.len() - 2;
-                        deq[i] = deq[i].push_str(s.as_str(), self.cjk);
-                        deq.push_back(PadStr::Pad)
-                    },
-                    None => deq.push_back(PadStr::from_str(s, self.cjk)),
+                0 => {
+                    match deq.pop_back() {
+                        Some(PadStr::UStr(ref us, _)) => {
+                            deq.push_back(PadStr::from_str(&(us.clone() + s), self.cjk));
+                        },
+                        Some(PadStr::Pad) => {
+                            let i = deq.len() - 2;
+                            deq[i] = deq[i].push_str(s.as_str(), self.cjk);
+                            deq.push_back(PadStr::Pad)
+                        },
+                        None => deq.push_back(PadStr::from_str(s, self.cjk)),
+                    }
                 },
                 n => {
                     deq.push_back(PadStr::from_str(s, self.cjk));
@@ -159,7 +159,6 @@ impl Matrix {
                 return String::from_str(&s[..idx]).unwrap();
             }
         }
-        [s.as_str(),
-         String::from_iter(iter::repeat(c).take(w - pos)).as_str()].join("")
+        [s.as_str(), String::from_iter(iter::repeat(c).take(w - pos)).as_str()].join("")
     }
 }
