@@ -16,12 +16,10 @@ mod tests {
 
     use cursormatrix;
     use events::*;
-    use std::str::FromStr;
     use std::sync::mpsc::channel;
     use std::thread;
     use std::time::Duration;
     use term::terminfo::TermInfo;
-    use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
     #[test]
     fn test_term() {
@@ -44,7 +42,7 @@ mod tests {
         assert!(true);
     }
 
-    #[test]
+    #[allow(dead_code)]
     fn test_term_sync() {
         let mut term = match cursormatrix::Term::new() {
             Ok(term) => term,
