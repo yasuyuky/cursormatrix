@@ -128,12 +128,11 @@ impl Cursor {
     }
 
     pub fn move_down(&mut self) -> Result<(), Error> {
-        Ok(self.y = if self.y < self.matrix.range.height - 1 {
+        if self.y < self.matrix.range.height - 1 {
             Self::write_raw_command(&self.commands.down)?;
-            self.y + 1
-        } else {
-            self.y
-        })
+            self.y = self.y + 1
+        };
+        Ok(())
     }
 
     pub fn move_left(&mut self) -> Result<(), Error> {
@@ -142,12 +141,11 @@ impl Cursor {
     }
 
     pub fn move_right(&mut self) -> Result<(), Error> {
-        Ok(self.x = if self.x < self.matrix.range.width - 1 {
+        if self.x < self.matrix.range.width - 1 {
             Self::write_raw_command(&self.commands.right)?;
-            self.x + 1
-        } else {
-            self.x
-        })
+            self.x = self.x + 1
+        };
+        Ok(())
     }
 
     pub fn move_home(&mut self) -> Result<(), Error> {
