@@ -48,7 +48,7 @@ impl Matrix {
     pub fn from_tty(tty: &Tty, cjk: bool) -> Result<Matrix, Error> {
         let mut matrix = Matrix { data: Vec::new(),
                                   range: TermSize::from_tty(tty)?,
-                                  cjk: cjk, };
+                                  cjk: cjk };
         matrix.refresh()?;
         Ok(matrix)
     }
@@ -84,29 +84,31 @@ impl Matrix {
         let new_vecpadstr = self.data[y].iter()
                                         .enumerate()
                                         .filter_map(|(i, pad_uc)| {
-                                                        if i < x {
-                                                            Some(pad_uc.clone())
-                                                        } else if i < x + replace_data.len() && i < self.range.width {
-                                                            Some(replace_data[i - x].clone())
-                                                        } else if i < self.range.width {
-                                                            Some(pad_uc.clone())
-                                                        } else {
-                                                            None
-                                                        }
-                                                    })
+                                            if i < x {
+                                                Some(pad_uc.clone())
+                                            } else if i < x + replace_data.len() && i < self.range.width {
+                                                Some(replace_data[i - x].clone())
+                                            } else if i < self.range.width {
+                                                Some(pad_uc.clone())
+                                            } else {
+                                                None
+                                            }
+                                        })
                                         .collect::<Vec<PadStr>>();
         self.data[y] = new_vecpadstr;
         (end, Self::get_partial_str_from_padstr(&self.data[y], x, end))
     }
 
     pub fn get_lines(&self) -> Vec<String> {
-        self.data.iter()
+        self.data
+            .iter()
             .map(|l| Self::get_partial_str_from_padstr(l, 0, self.range.width))
             .collect()
     }
 
     pub fn create_pad_str(&self, s: &String) -> Vec<PadStr> {
-        let s_with_w = s.chars().map(|c| (c.to_string(), self.get_width(c)))
+        let s_with_w = s.chars()
+                        .map(|c| (c.to_string(), self.get_width(c)))
                         .collect::<Vec<(String, usize)>>();
         let mut deq: VecDeque<PadStr> = VecDeque::new();
         for &(ref s, ref w) in s_with_w.iter() {
@@ -140,9 +142,9 @@ impl Matrix {
         };
         vecpadstr[start..end_].iter()
                               .filter_map(|iu| match iu {
-                                              &PadStr::UStr(ref u, _) => Some(u.clone()),
-                                              &PadStr::Pad => None,
-                                          })
+                                  &PadStr::UStr(ref u, _) => Some(u.clone()),
+                                  &PadStr::Pad => None,
+                              })
                               .collect()
     }
 

@@ -21,7 +21,7 @@ impl TermSize {
         }
         Ok(TermSize { tty: tty.clone(),
                       width: ws.ws_col as usize,
-                      height: ws.ws_row as usize, })
+                      height: ws.ws_row as usize })
     }
 
     pub fn refresh(&mut self) -> Result<(), Error> {

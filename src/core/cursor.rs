@@ -30,7 +30,7 @@ impl CursorCommand {
                         right: terminfo.get_string("cuf1"),
                         clear: terminfo.get_string("clear"),
                         delete_char: terminfo.get_string("dch1"),
-                        delete_line: terminfo.get_string("dl1"), }
+                        delete_line: terminfo.get_string("dl1") }
     }
 }
 
@@ -49,7 +49,7 @@ impl Cursor {
         Ok(Cursor { x: 0,
                     y: 0,
                     commands: CursorCommand::from_terminfo(terminfo),
-                    matrix: Matrix::from_tty(tty, cjk)?, })
+                    matrix: Matrix::from_tty(tty, cjk)? })
     }
 
     fn setup_sighandler() -> Result<(), Error> {

@@ -39,7 +39,7 @@ impl Term {
                               cursor: Cursor::new(&terminfo, &tty, cjk)?,
                               terminfo: terminfo,
                               termioscond: TermiosCond::from_tty(&tty),
-                              tty: tty, };
+                              tty: tty };
         term.write_raw_command("smcup")?;
         term.cursor.clear()?;
         Ok(term)
@@ -60,7 +60,7 @@ impl Term {
         let timeout: *mut libc::timeval = match maybe_timeout {
             None => ptr::null_mut(),
             Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,
-                                             tv_usec: (to.subsec_nanos() as libc::suseconds_t) / 1000, },
+                                             tv_usec: (to.subsec_nanos() as libc::suseconds_t) / 1000 },
         };
 
         let rawfd = self.tty.as_raw_fd();
@@ -94,51 +94,44 @@ impl Term {
 
     pub fn get_input_async(&mut self, maybe_timeout: Option<Duration>, etx: Sender<Event>) -> Result<(), Error> {
         crossbeam::scope(|scope| {
-                             let (btx, brx) = channel::<u8>();
-                             let etx_clone = etx.clone();
-                             let dic = self.pattern_dict.clone();
-                             scope.spawn(move |_| Self::recieve_to_convert(dic, brx, etx_clone));
+            let (btx, brx) = channel::<u8>();
+            let etx_clone = etx.clone();
+            let dic = self.pattern_dict.clone();
+            scope.spawn(move |_| Self::recieve_to_convert(dic, brx, etx_clone));
 
-                             let timeout: *mut libc::timeval = match maybe_timeout {
-                                 None => ptr::null_mut(),
-                                 Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,
-                                                                  tv_usec: (to.subsec_nanos() as libc::suseconds_t)
-                                                                           / 1000, },
-                             };
+            let timeout: *mut libc::timeval = match maybe_timeout {
+                None => ptr::null_mut(),
+                Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,
+                                                 tv_usec: (to.subsec_nanos() as libc::suseconds_t) / 1000 },
+            };
 
-                             let rawfd = self.tty.as_raw_fd();
-                             let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
-                             unsafe { libc::FD_SET(rawfd, &mut readfds) };
-                             loop {
-                                 match unsafe {
-                                           libc::select(rawfd + 1,
-                                                        &mut readfds,
-                                                        ptr::null_mut(),
-                                                        ptr::null_mut(),
-                                                        timeout)
-                                       } {
-                                     -1 => {
-                                         let err = Error::last_os_error();
-                                         match err.kind() {
-                                             ErrorKind::Interrupted => continue,
-                                             _ => return Err(err),
-                                         }
-                                     },
-                                     0 => {
-                                         etx.send(Event::TimeOut).unwrap();
-                                         return Ok(());
-                                     },
-                                     _ => {
-                                         let mut buf = Vec::<u8>::new();
-                                         self.tty.read_to_end(&mut buf)?;
-                                         for b in buf.iter() {
-                                             btx.send(b.clone()).unwrap()
-                                         }
-                                         buf.clear();
-                                     },
-                                 }
-                             }
-                         }).unwrap()
+            let rawfd = self.tty.as_raw_fd();
+            let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
+            unsafe { libc::FD_SET(rawfd, &mut readfds) };
+            loop {
+                match unsafe { libc::select(rawfd + 1, &mut readfds, ptr::null_mut(), ptr::null_mut(), timeout) } {
+                    -1 => {
+                        let err = Error::last_os_error();
+                        match err.kind() {
+                            ErrorKind::Interrupted => continue,
+                            _ => return Err(err),
+                        }
+                    },
+                    0 => {
+                        etx.send(Event::TimeOut).unwrap();
+                        return Ok(());
+                    },
+                    _ => {
+                        let mut buf = Vec::<u8>::new();
+                        self.tty.read_to_end(&mut buf)?;
+                        for b in buf.iter() {
+                            btx.send(b.clone()).unwrap()
+                        }
+                        buf.clear();
+                    },
+                }
+            }
+        }).unwrap()
     }
 
     fn recieve_to_convert(patterns: BTreeMap<Vec<u8>, Event>, brx: Receiver<u8>, etx: Sender<Event>) {
@@ -194,9 +187,9 @@ impl Term {
                                     .strings
                                     .iter()
                                     .filter_map(|(k, v)| match TERMINFO_KEY_DICT.get(*k) {
-                                                    Some(e) => Some((v.clone(), e.clone())),
-                                                    None => None,
-                                                })
+                                        Some(e) => Some((v.clone(), e.clone())),
+                                        None => None,
+                                    })
                                     .collect::<BTreeMap<Vec<u8>, Event>>();
         CTRL_KEY_DICT.clone()
                      .into_iter()

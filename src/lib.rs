@@ -96,12 +96,14 @@ mod tests {
             &Event::BackSpace => term.cursor.backspace().unwrap(),
             &Event::Chars(ref s) => {
                 use unicode_normalization::UnicodeNormalization;
-                term.cursor.print_here(&format!("{}", s.nfkc().collect::<String>()))
+                term.cursor
+                    .print_here(&format!("{}", s.nfkc().collect::<String>()))
                     .unwrap();
             },
             e => {
                 let pos = term.cursor.get_pos();
-                term.cursor.print_here(format!("e: {:?}, pos{:?}", e, pos).as_str())
+                term.cursor
+                    .print_here(format!("e: {:?}, pos{:?}", e, pos).as_str())
                     .unwrap();
             },
         }
