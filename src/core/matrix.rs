@@ -80,7 +80,7 @@ impl Matrix {
     pub fn put_buffer(&mut self, x: usize, y: usize, w: usize, s: &String) -> (usize, String) {
         let ws = self.fill_line(s, w, ' ');
         let replace_data = self.create_pad_str(&ws);
-        let end = *[x + replace_data.len(), self.range.width].into_iter().min().unwrap();
+        let end = *[x + replace_data.len(), self.range.width].iter().min().unwrap();
         let new_vecpadstr = self.data[y].iter()
                                         .enumerate()
                                         .filter_map(|(i, pad_uc)| {
