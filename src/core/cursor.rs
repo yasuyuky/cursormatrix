@@ -119,7 +119,7 @@ impl Cursor {
     pub fn move_to(&mut self, x: usize, y: usize) -> Result<(), Error> {
         self.x = *[x, self.matrix.range.width - 1].iter().min().unwrap();
         self.y = *[y, self.matrix.range.height - 1].iter().min().unwrap();
-        Self::write_command_with_args(&self.commands.address, &vec![self.y, self.x])
+        Self::write_command_with_args(&self.commands.address, &[self.y, self.x])
     }
 
     pub fn move_up(&mut self) -> Result<(), Error> {
