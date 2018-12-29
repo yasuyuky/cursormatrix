@@ -82,7 +82,7 @@ impl Term {
                 },
                 _ => {
                     self.tty.read_to_end(&mut buf)?;
-                    assert!(buf.len() > 0);
+                    assert!(!buf.is_empty());
                     match Self::convert_to_event(&self.pattern_dict, &buf) {
                         Ok(e) => return Ok(e),
                         Err(_) => continue,
