@@ -175,12 +175,12 @@ impl Cursor {
         self.delete_char()
     }
 
-    fn write_raw_command(command: &String) -> Result<(), Error> {
+    fn write_raw_command(command: &str) -> Result<(), Error> {
         stdout().write_fmt(format_args!("{}", command))?;
         stdout().flush()
     }
 
-    fn write_command_with_args(command: &String, args: &[usize]) -> Result<(), Error> {
+    fn write_command_with_args(command: &str, args: &[usize]) -> Result<(), Error> {
         let s = TermInfo::format(command, args);
         stdout().write_fmt(format_args!("{}", s))?;
         stdout().flush()

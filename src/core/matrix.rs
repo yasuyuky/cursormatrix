@@ -77,7 +77,7 @@ impl Matrix {
         }
     }
 
-    pub fn put_buffer(&mut self, x: usize, y: usize, w: usize, s: &String) -> (usize, String) {
+    pub fn put_buffer(&mut self, x: usize, y: usize, w: usize, s: &str) -> (usize, String) {
         let ws = self.fill_line(s, w, ' ');
         let replace_data = self.create_pad_str(&ws);
         let end = *[x + replace_data.len(), self.range.width].iter().min().unwrap();
@@ -106,7 +106,7 @@ impl Matrix {
             .collect()
     }
 
-    pub fn create_pad_str(&self, s: &String) -> Vec<PadStr> {
+    pub fn create_pad_str(&self, s: &str) -> Vec<PadStr> {
         let s_with_w = s.chars()
                         .map(|c| (c.to_string(), self.get_width(c)))
                         .collect::<Vec<(String, usize)>>();
@@ -148,7 +148,7 @@ impl Matrix {
                               .collect()
     }
 
-    pub fn fill_line(&self, s: &String, w: usize, c: char) -> String {
+    pub fn fill_line(&self, s: &str, w: usize, c: char) -> String {
         let mut pos = 0usize;
         let mut idx = 0usize;
         for c in s.chars() {
@@ -159,6 +159,6 @@ impl Matrix {
                 return String::from_str(&s[..idx]).unwrap();
             }
         }
-        [s.as_str(), String::from_iter(iter::repeat(c).take(w - pos)).as_str()].join("")
+        [s, String::from_iter(iter::repeat(c).take(w - pos)).as_str()].join("")
     }
 }
