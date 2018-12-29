@@ -21,10 +21,10 @@ impl TermInfo {
         String::from_utf8(self.info.strings[command].clone()).unwrap()
     }
 
-    pub fn format(s: &String, args: &Vec<usize>) -> String {
+    pub fn format(s: &String, args: &[usize]) -> String {
         let vecarg: Vec<usize> = match s.find("%i") {
             Some(_) => args.iter().map(|x| x + 1).collect(),
-            None => args.clone(),
+            None => args.to_owned(),
         };
         let mut ret: String = s.replace("%i", "");
         for (i, a) in vecarg.iter().enumerate() {

@@ -50,7 +50,7 @@ impl Term {
         stdout().flush()
     }
 
-    fn write_command_with_args(&mut self, command: &str, args: &Vec<usize>) -> Result<(), Error> {
+    fn write_command_with_args(&mut self, command: &str, args: &[usize]) -> Result<(), Error> {
         let s = TermInfo::format(&self.terminfo.get_string(command), args);
         stdout().write_fmt(format_args!("{}", s))?;
         stdout().flush()
@@ -198,12 +198,12 @@ impl Term {
                      .collect()
     }
 
-    fn convert_to_event(pattern_dict: &BTreeMap<Vec<u8>, Event>, buf: &Vec<u8>) -> Result<Event, FromUtf8Error> {
+    fn convert_to_event(pattern_dict: &BTreeMap<Vec<u8>, Event>, buf: &[u8]) -> Result<Event, FromUtf8Error> {
         match pattern_dict.get(buf) {
             Some(e) => return Ok(e.clone()),
             None => (),
         };
-        match String::from_utf8(buf.clone()) {
+        match String::from_utf8(buf.to_owned()) {
             Ok(ref s) => Ok(Event::Chars(s.clone())),
             Err(e) => Err(e),
         }

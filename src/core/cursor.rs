@@ -180,7 +180,7 @@ impl Cursor {
         stdout().flush()
     }
 
-    fn write_command_with_args(command: &String, args: &Vec<usize>) -> Result<(), Error> {
+    fn write_command_with_args(command: &String, args: &[usize]) -> Result<(), Error> {
         let s = TermInfo::format(command, args);
         stdout().write_fmt(format_args!("{}", s))?;
         stdout().flush()

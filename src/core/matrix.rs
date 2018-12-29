@@ -135,7 +135,7 @@ impl Matrix {
         deq.into_iter().collect()
     }
 
-    fn get_partial_str_from_padstr(vecpadstr: &Vec<PadStr>, start: usize, end: usize) -> String {
+    fn get_partial_str_from_padstr(vecpadstr: &[PadStr], start: usize, end: usize) -> String {
         let end_ = match vecpadstr[end - 1] {
             PadStr::UStr(_, 2) => end - 1,
             _ => end,
