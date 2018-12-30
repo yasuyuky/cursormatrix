@@ -25,12 +25,12 @@ impl PadStr {
     }
 
     pub fn push_str(&mut self, s: &str, cjk: bool) -> PadStr {
-        match self {
-            &mut PadStr::UStr(ref mut os, _) => {
+        match *self {
+            PadStr::UStr(ref mut os, _) => {
                 os.push_str(s);
                 Self::from_str(os.as_str(), cjk)
             },
-            &mut PadStr::Pad => PadStr::Pad,
+            PadStr::Pad => PadStr::Pad,
         }
     }
 }
@@ -141,9 +141,9 @@ impl Matrix {
             _ => end,
         };
         vecpadstr[start..end_].iter()
-                              .filter_map(|iu| match iu {
-                                  &PadStr::UStr(ref u, _) => Some(u.clone()),
-                                  &PadStr::Pad => None,
+                              .filter_map(|iu| match *iu {
+                                  PadStr::UStr(ref u, _) => Some(u.clone()),
+                                  PadStr::Pad => None,
                               })
                               .collect()
     }
