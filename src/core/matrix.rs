@@ -58,7 +58,7 @@ impl Matrix {
         self.data.resize(self.range.height,
                          iter::repeat(PadStr::from_str(" ", self.cjk)).take(self.range.width)
                                                                       .collect());
-        for ref mut d in self.data.iter_mut() {
+        for d in self.data.iter_mut() {
             d.resize(self.range.width, PadStr::from_str(" ", self.cjk))
         }
         Ok(())
