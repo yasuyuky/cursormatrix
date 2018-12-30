@@ -39,7 +39,7 @@ pub struct Cursor {
     pub x: usize,
     pub y: usize,
     commands: CursorCommand,
-    pub matrix: Matrix,
+    matrix: Matrix,
 }
 
 #[allow(dead_code)]
