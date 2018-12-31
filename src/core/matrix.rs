@@ -48,7 +48,7 @@ impl Matrix {
     pub fn from_tty(tty: &Tty, cjk: bool) -> Result<Matrix, Error> {
         let mut matrix = Matrix { data: Vec::new(),
                                   range: TermSize::from_tty(tty)?,
-                                  cjk: cjk };
+                                  cjk };
         matrix.refresh()?;
         Ok(matrix)
     }

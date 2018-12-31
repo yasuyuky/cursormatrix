@@ -37,9 +37,9 @@ impl Term {
         let tty = Tty::new();
         let mut term = Term { pattern_dict: Self::create_pattern_dict(&terminfo),
                               cursor: Cursor::new(&terminfo, &tty, cjk)?,
-                              terminfo: terminfo,
+                              terminfo,
                               termioscond: TermiosCond::from_tty(&tty),
-                              tty: tty };
+                              tty };
         term.write_raw_command("smcup")?;
         term.cursor.clear()?;
         Ok(term)
