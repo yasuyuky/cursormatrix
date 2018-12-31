@@ -199,9 +199,8 @@ impl Term {
     }
 
     fn convert_to_event(pattern_dict: &BTreeMap<Vec<u8>, Event>, buf: &[u8]) -> Result<Event, FromUtf8Error> {
-        match pattern_dict.get(buf) {
-            Some(e) => return Ok(e.clone()),
-            None => (),
+        if let Some(e) = pattern_dict.get(buf) {
+            return Ok(e.clone());
         };
         match String::from_utf8(buf.to_owned()) {
             Ok(ref s) => Ok(Event::Chars(s.clone())),
