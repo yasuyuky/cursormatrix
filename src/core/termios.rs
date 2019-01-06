@@ -1,4 +1,5 @@
 use core::Tty;
+use std::io::stdin;
 use std::os::unix::io::AsRawFd;
 use termios::*;
 
@@ -19,13 +20,13 @@ impl TermiosCond {
         termios.c_iflag &= !(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
         termios.c_cc[VMIN] = 0;
         termios.c_cc[VTIME] = 0;
-        tcsetattr(0, TCSANOW, &termios).unwrap();
+        tcsetattr(stdin().as_raw_fd(), TCSANOW, &termios).unwrap();
         termioscond
     }
 }
 
 impl Drop for TermiosCond {
     fn drop(&mut self) {
-        tcsetattr(0, TCSANOW, &self.original_termios).unwrap();
+        tcsetattr(stdin().as_raw_fd(), TCSANOW, &self.original_termios).unwrap();
     }
 }
