@@ -108,9 +108,11 @@ mod tests {
         }
         println!("strings:");
         for element in &terminfo.strings {
-            println!("strings:{}\t{:?}",
-                     element.0,
-                     String::from_utf8(element.1.clone()).unwrap());
+            println!(
+                "strings:{}\t{:?}",
+                element.0,
+                String::from_utf8(element.1.clone()).unwrap()
+            );
         }
     }
 
