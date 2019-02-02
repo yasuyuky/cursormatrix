@@ -42,23 +42,6 @@ mod tests {
         assert!(true);
     }
 
-    #[allow(dead_code)]
-    fn test_term_sync() {
-        let mut term = match cursormatrix::Term::new() {
-            Ok(term) => term,
-            Err(_) => return,
-        };
-
-        term.cursor.print_fill_here("sync!!", 10).unwrap();
-        loop {
-            if !handle_event(&term.get_input_sync(Some(Duration::from_secs(10))).unwrap(), &mut term) {
-                break;
-            };
-        }
-
-        assert!(true)
-    }
-
     #[test]
     fn test_show_info() {
         let term = match cursormatrix::Term::new() {
