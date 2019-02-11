@@ -10,6 +10,7 @@ use std::os::unix::io::AsRawFd;
 use std::ptr;
 use std::string::FromUtf8Error;
 use std::sync::mpsc::{channel, Receiver, Sender};
+use std::thread;
 use std::time::Duration;
 
 #[allow(dead_code)]
@@ -43,6 +44,15 @@ impl Term {
         term.write_raw_command("smcup")?;
         term.cursor.clear()?;
         Ok(term)
+    }
+
+    pub fn with_input(duration: Option<Duration>, cjk: bool) -> Result<(Term, Receiver<Event>), Error> {
+        let term = Self::from_cjk(cjk)?;
+
+        let (etx, erx) = channel::<Event>();
+        let mut t2 = term.clone();
+        thread::spawn(move || t2.get_input_async(duration, etx));
+        Ok((term, erx))
     }
 
     fn write_raw_command(&mut self, command: &str) -> Result<(), Error> {
