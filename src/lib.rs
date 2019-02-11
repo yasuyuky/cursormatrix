@@ -16,13 +16,11 @@ mod tests {
 
     use cursormatrix;
     use events::*;
-    use std::sync::mpsc::channel;
-    use std::thread;
     use std::time::Duration;
     use term::terminfo::TermInfo;
 
     #[test]
-    fn test_term() {
+    fn test_term() -> Result<(), term::Error> {
         fn handle_event(ev: &Event, term: &mut cursormatrix::Term) -> bool {
             match ev {
                 &Event::Ctrl('C') => return false,
@@ -54,14 +52,7 @@ mod tests {
             true
         }
 
-        let mut term = match cursormatrix::Term::new() {
-            Ok(term) => term,
-            Err(_) => return,
-        };
-
-        let (etx, erx) = channel::<Event>();
-        let mut t2 = term.clone();
-        thread::spawn(move || t2.get_input_async(Some(Duration::from_secs(30)), etx));
+        let (mut term, erx) = cursormatrix::Term::with_input(Some(Duration::from_secs(30)), true)?;
 
         term.cursor.print_fill_here("async!!!", 10).unwrap();
         loop {
@@ -70,7 +61,7 @@ mod tests {
             }
         }
 
-        assert!(true);
+        Ok(assert!(true))
     }
 
     #[test]
