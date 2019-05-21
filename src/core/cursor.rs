@@ -3,10 +3,10 @@ use libc;
 use std::io::{stdout, Error, Write};
 use std::mem;
 use std::ptr;
-use std::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
+use std::sync::atomic::{AtomicBool, Ordering};
 use unicode_width::UnicodeWidthStr;
 
-static SIGWINCH_RECIEVED: AtomicBool = ATOMIC_BOOL_INIT;
+static SIGWINCH_RECIEVED: AtomicBool = AtomicBool::new(false);
 
 #[derive(Clone, Debug)]
 struct CursorCommand {
