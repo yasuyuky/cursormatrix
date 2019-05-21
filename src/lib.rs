@@ -56,7 +56,10 @@ mod tests {
 
         term.cursor.print_fill_here("async!!!", 10).unwrap();
         loop {
-            if !handle_event(&erx.recv().unwrap(), &mut term) {
+            if match erx.recv() {
+                Ok(ev) => !handle_event(&ev, &mut term),
+                Err(_) => false,
+            } {
                 break;
             }
         }
