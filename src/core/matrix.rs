@@ -1,6 +1,6 @@
 extern crate unicode_width;
 use self::unicode_width::{UnicodeWidthChar as UWChar, UnicodeWidthStr as UWStr};
-use core::{TermSize, Tty};
+use crate::core::{TermSize, Tty};
 use std::collections::VecDeque;
 use std::io::Error;
 use std::iter;

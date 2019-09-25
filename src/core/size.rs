@@ -1,4 +1,4 @@
-use core::Tty;
+use crate::core::Tty;
 use libc;
 use std::io::Error;
 use std::mem;

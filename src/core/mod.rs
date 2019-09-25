@@ -5,9 +5,9 @@ mod terminfo;
 mod termios;
 mod tty;
 
-pub use core::cursor::*;
-pub use core::matrix::*;
-pub use core::size::*;
-pub use core::terminfo::*;
-pub use core::termios::*;
-pub use core::tty::*;
+pub use crate::core::cursor::*;
+pub use crate::core::matrix::*;
+pub use crate::core::size::*;
+pub use crate::core::terminfo::*;
+pub use crate::core::termios::*;
+pub use crate::core::tty::*;

@@ -1,4 +1,4 @@
-use core::{Matrix, TermInfo, Tty};
+use crate::core::{Matrix, TermInfo, Tty};
 use libc;
 use std::io::{stdout, Error, Write};
 use std::mem;

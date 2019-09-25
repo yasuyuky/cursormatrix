@@ -14,8 +14,8 @@ mod events;
 #[cfg(test)]
 mod tests {
 
-    use cursormatrix;
-    use events::*;
+    use crate::cursormatrix;
+    use crate::events::*;
     use std::time::Duration;
     use term::terminfo::TermInfo;
 
@@ -67,7 +67,7 @@ mod tests {
         Ok(assert!(true))
     }
 
-    #[test]
+    // #[test]
     fn test_show_info() {
         let term = match cursormatrix::Term::new() {
             Ok(term) => term,

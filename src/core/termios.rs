@@ -1,4 +1,4 @@
-use core::Tty;
+use crate::core::Tty;
 use std::io::stdin;
 use std::os::unix::io::AsRawFd;
 use termios::*;
