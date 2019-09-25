@@ -67,8 +67,7 @@ mod tests {
         Ok(assert!(true))
     }
 
-    // #[test]
-    #[allow(dead_code)]
+    #[test]
     fn test_show_info() {
         let term = match cursormatrix::Term::new() {
             Ok(term) => term,
