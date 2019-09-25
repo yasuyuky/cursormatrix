@@ -52,7 +52,7 @@ mod tests {
             true
         }
 
-        let (mut term, erx) = cursormatrix::Term::with_input(Some(Duration::from_secs(30)), true)?;
+        let (mut term, erx) = cursormatrix::Term::with_input(Some(Duration::from_secs(10)), true)?;
 
         term.cursor.print_fill_here("async!!!", 10).unwrap();
         loop {
