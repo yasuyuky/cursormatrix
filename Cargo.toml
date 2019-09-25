@@ -5,7 +5,7 @@ authors = ["Yasuyuki YAMADA <yasuyuki.ymd@gmail.com>"]
 edition = '2018'
 
 [dependencies]
-term = "0.5"
+term = "0.6"
 termios = "0.3"
 libc = "0.2"
 lazy_static = "1.0"
