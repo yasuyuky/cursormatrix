@@ -9,7 +9,7 @@ extern crate unicode_width;
 
 mod core;
 mod cursormatrix;
-mod events;
+pub mod events;
 
 #[cfg(test)]
 mod tests {
