@@ -10,8 +10,8 @@ pub struct Tty {
 
 #[allow(dead_code)]
 impl Tty {
-    pub fn new() -> Self {
-        Tty { file: OpenOptions::new().write(true).read(true).open("/dev/tty").unwrap() }
+    pub fn new() -> Result<Self, std::io::Error> {
+        Ok(Tty { file: OpenOptions::new().write(true).read(true).open("/dev/tty")? })
     }
 
     pub fn read_to_end(&mut self, buf: &mut Vec<u8>) -> Result<usize, Error> {

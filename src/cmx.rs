@@ -35,7 +35,7 @@ impl Term {
 
     pub fn from_cjk(cjk: bool) -> Result<Term, Error> {
         let terminfo = TermInfo::new();
-        let tty = Tty::new();
+        let tty = Tty::new().expect("open tty");
         let mut term = Term { pattern_dict: Self::create_pattern_dict(&terminfo),
                               cursor: Cursor::new(&terminfo, &tty, cjk)?,
                               terminfo,
