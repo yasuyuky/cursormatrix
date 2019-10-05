@@ -42,13 +42,13 @@ mod tests {
                     term.cursor
                         .print_here(&format!("{}", s.nfkc().collect::<String>()))
                         .unwrap();
-                }
+                },
                 e => {
                     let pos = term.cursor.get_pos();
                     term.cursor
                         .print_here(format!("e: {:?}, pos{:?}", e, pos).as_str())
                         .unwrap();
-                }
+                },
             }
             true
         }
@@ -103,11 +103,9 @@ mod tests {
         }
         println!("strings:");
         for element in &terminfo.strings {
-            println!(
-                "strings:{}\t{:?}",
-                element.0,
-                String::from_utf8(element.1.clone()).unwrap()
-            );
+            println!("strings:{}\t{:?}",
+                     element.0,
+                     String::from_utf8(element.1.clone()).unwrap());
         }
     }
 }
