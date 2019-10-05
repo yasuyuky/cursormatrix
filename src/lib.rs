@@ -8,9 +8,9 @@ extern crate unicode_normalization;
 extern crate unicode_width;
 
 mod core;
-mod cursormatrix;
+mod cmx;
 pub mod events;
-pub use cursormatrix::Term;
+pub use cmx::Term;
 
 #[cfg(test)]
 mod tests {
