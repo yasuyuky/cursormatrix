@@ -10,6 +10,7 @@ extern crate unicode_width;
 mod core;
 mod cursormatrix;
 pub mod events;
+pub use cursormatrix::Term;
 
 #[cfg(test)]
 mod tests {
