@@ -1,6 +1,6 @@
 use crate::core::{Cursor, TermInfo, TermiosCond, Tty};
-use crossbeam;
 use crate::events::{Event, CTRL_KEY_DICT, DEFAULT_KEY_DICT, TERMINFO_KEY_DICT};
+use crossbeam;
 use libc;
 use std::collections::BTreeMap;
 use std::collections::Bound::*;
