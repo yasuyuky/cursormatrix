@@ -8,3 +8,9 @@ TUI Library for Rust
 ```bash
 cargo test
 ```
+
+## Example
+
+```console
+cargo example --minieditor
+```
