@@ -5,7 +5,7 @@ TUI Library for Rust
 
 ## Test
 
-```bash
+```console
 cargo test
 ```
 
