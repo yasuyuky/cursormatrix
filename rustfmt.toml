@@ -3,4 +3,4 @@ indent_style="Visual"
 reorder_imports=true
 match_block_trailing_comma=true
 trailing_comma="Vertical"
-fn_args_density="Compressed"
+fn_args_layout="Compressed"
