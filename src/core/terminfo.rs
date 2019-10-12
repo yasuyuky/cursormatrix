@@ -36,6 +36,12 @@ impl TermInfo {
     }
 }
 
+impl Default for TermInfo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Clone for TermInfo {
     fn clone(&self) -> Self {
         TermInfo { info: terminfo::TermInfo { names: self.info.names.clone(),
