@@ -1,7 +1,6 @@
 extern crate cursormatrix;
 
-use cursormatrix::events::*;
-use cursormatrix::Term;
+use cursormatrix::{Direction, Event, Term};
 use std::time::Duration;
 
 fn handle_event(ev: &Event, term: &mut Term) -> bool {
