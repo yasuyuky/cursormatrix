@@ -11,8 +11,7 @@ mod cmx;
 mod core;
 pub mod events;
 pub use cmx::Term;
-pub use events::Event;
-pub use events::Direction;
+pub use events::{Direction, Event};
 
 #[cfg(test)]
 mod tests {
