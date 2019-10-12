@@ -2,6 +2,7 @@
 
 TUI Library for Rust
 
+![ci status](https://github.com/yasuyuky/cursormatrix/workflows/Rust/badge.svg)
 
 ## Test
 
