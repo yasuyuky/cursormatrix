@@ -17,11 +17,11 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
         &Event::Arrow(Direction::Left) => term.cursor.move_left().unwrap(),
         &Event::Arrow(Direction::Right) => term.cursor.move_right().unwrap(),
         &Event::Ctrl('D') => term.cursor.delete_char().unwrap(),
-        &Event::Return => { 
+        &Event::Return => {
             term.cursor.print_here("\n").unwrap();
             term.cursor.move_home().unwrap();
             term.cursor.move_down().unwrap();
-        }
+        },
         &Event::Delete => term.cursor.delete_char().unwrap(),
         &Event::BackSpace => term.cursor.backspace().unwrap(),
         &Event::Chars(ref s) => {

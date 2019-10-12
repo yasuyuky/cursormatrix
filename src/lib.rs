@@ -7,8 +7,8 @@ extern crate termios;
 extern crate unicode_normalization;
 extern crate unicode_width;
 
-mod core;
 mod cmx;
+mod core;
 pub mod events;
 pub use cmx::Term;
 
