@@ -5,8 +5,7 @@ use std::time::Duration;
 
 fn handle_event(ev: &Event, term: &mut Term) -> bool {
     match ev {
-        &Event::Ctrl('C') => return false,
-        &Event::TimeOut => return false,
+        &Event::Ctrl('C') | &Event::TimeOut => return false,
         &Event::Ctrl('L') => term.cursor.clear().unwrap(),
         &Event::Ctrl('R') => term.cursor.reload().unwrap(),
         &Event::Ctrl('A') => term.cursor.move_home().unwrap(),
