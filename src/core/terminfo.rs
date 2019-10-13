@@ -9,12 +9,11 @@ pub struct TermInfo {
 #[allow(dead_code)]
 impl TermInfo {
     pub fn new() -> Self {
-        TermInfo { info: terminfo::TermInfo::from_env().unwrap_or({
-                                                           terminfo::TermInfo { names: Default::default(),
-                                                                                bools: Default::default(),
-                                                                                numbers: Default::default(),
-                                                                                strings: Default::default() }
-                                                       }) }
+        let empty = terminfo::TermInfo { names: Default::default(),
+                                         bools: Default::default(),
+                                         numbers: Default::default(),
+                                         strings: Default::default() };
+        TermInfo { info: terminfo::TermInfo::from_env().unwrap_or({ empty }) }
     }
 
     pub fn get_string(&self, command: &str) -> String {
