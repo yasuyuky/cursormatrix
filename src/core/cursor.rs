@@ -87,7 +87,7 @@ impl Cursor {
     fn rewrite_matrix(&mut self) -> Result<(), Error> {
         Self::write_raw_command(&self.commands.clear)?;
         let w = self.matrix.range.width;
-        for (i, l) in self.matrix.get_lines().iter().enumerate() {
+        for (i, l) in self.matrix.lines().iter().enumerate() {
             self.print_fill((0, i), l, w)?
         }
         Ok(())

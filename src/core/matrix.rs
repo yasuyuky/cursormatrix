@@ -99,7 +99,7 @@ impl Matrix {
         (end, Self::get_partial_str_from_padstr(&self.data[y], x, end))
     }
 
-    pub fn get_lines(&self) -> Vec<String> {
+    pub fn lines(&self) -> Vec<String> {
         self.data
             .iter()
             .map(|l| Self::get_partial_str_from_padstr(l, 0, self.range.width))
