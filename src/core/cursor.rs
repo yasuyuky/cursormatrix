@@ -159,6 +159,17 @@ impl Cursor {
         self.move_to(x, y)
     }
 
+    pub fn move_top(&mut self) -> Result<(), Error> {
+        let x = self.x;
+        self.move_to(x, 0)
+    }
+
+    pub fn move_bottom(&mut self) -> Result<(), Error> {
+        let x = self.x;
+        let y = self.matrix.range.height - 1;
+        self.move_to(x, y)
+    }
+
     pub fn delete_char(&mut self) -> Result<(), Error> {
         Self::write_raw_command(&self.commands.delete_char)
     }
