@@ -88,12 +88,12 @@ impl Cursor {
         Self::write_raw_command(&self.commands.clear)?;
         let w = self.matrix.range.width;
         for (i, l) in self.matrix.get_lines().iter().enumerate() {
-            self.print_fill(0, i, l, w)?
+            self.print_fill((0, i), l, w)?
         }
         Ok(())
     }
 
-    fn print_fill(&mut self, x: usize, y: usize, s: &str, w: usize) -> Result<(), Error> {
+    fn print_fill(&mut self, (x, y): (usize, usize), s: &str, w: usize) -> Result<(), Error> {
         let rs = s.replace(|c| ['\n', '\r'].iter().any(|r| c == *r), "");
         let (end, final_s) = self.matrix.put_buffer(x, y, w, &rs);
         stdout().write_fmt(format_args!("{}", final_s))?;
@@ -103,8 +103,7 @@ impl Cursor {
 
     pub fn print_fill_here(&mut self, s: &str, w: usize) -> Result<(), Error> {
         self.check_winch()?;
-        let (x, y) = self.get_pos();
-        self.print_fill(x, y, s, w)
+        self.print_fill(self.get_pos(), s, w)
     }
 
     pub fn print_here(&mut self, s: &str) -> Result<(), Error> {
