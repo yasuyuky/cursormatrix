@@ -116,8 +116,8 @@ impl Cursor {
     }
 
     pub fn move_to(&mut self, x: usize, y: usize) -> Result<(), Error> {
-        self.x = *[x, self.matrix.range.width - 1].iter().min().unwrap();
-        self.y = *[y, self.matrix.range.height - 1].iter().min().unwrap();
+        self.x = std::cmp::min(x, self.matrix.range.width - 1);
+        self.y = std::cmp::min(y, self.matrix.range.height - 1);
         Self::write_command_with_args(&self.commands.address, &[self.y, self.x])
     }
 
