@@ -9,7 +9,7 @@ extern crate unicode_width;
 
 mod cmx;
 mod core;
-pub mod events;
+mod events;
 pub use cmx::Term;
 pub use events::{Direction, Event};
 
