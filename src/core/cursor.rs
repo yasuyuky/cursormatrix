@@ -64,7 +64,7 @@ impl Cursor {
 
     pub fn clear(&mut self) -> Result<(), Error> {
         self.check_winch()?;
-        self.move_to(0, 0)?;
+        self.move_to((0, 0))?;
         Self::write_raw_command(&self.commands.clear)?;
         self.matrix.clear()
     }
@@ -79,7 +79,7 @@ impl Cursor {
             let (x, y) = self.get_pos();
             self.matrix.refresh()?;
             self.rewrite_matrix()?;
-            self.move_to(x, y)?
+            self.move_to((x, y))?
         }
         Ok(())
     }
@@ -97,7 +97,7 @@ impl Cursor {
         let rs = s.replace(|c| ['\n', '\r'].iter().any(|r| c == *r), "");
         let (end, final_s) = self.matrix.put_buffer(x, y, w, &rs);
         stdout().write_fmt(format_args!("{}", final_s))?;
-        self.move_to(end, y)?;
+        self.move_to((end, y))?;
         stdout().flush()
     }
 
@@ -115,7 +115,7 @@ impl Cursor {
         (self.x, self.y)
     }
 
-    pub fn move_to(&mut self, x: usize, y: usize) -> Result<(), Error> {
+    pub fn move_to(&mut self, (x, y): (usize, usize)) -> Result<(), Error> {
         self.x = std::cmp::min(x, self.matrix.range.width - 1);
         self.y = std::cmp::min(y, self.matrix.range.height - 1);
         Self::write_command_with_args(&self.commands.address, &[self.y, self.x])
@@ -149,24 +149,24 @@ impl Cursor {
 
     pub fn move_home(&mut self) -> Result<(), Error> {
         let y = self.y;
-        self.move_to(0, y)
+        self.move_to((0, y))
     }
 
     pub fn move_end(&mut self) -> Result<(), Error> {
         let x = self.matrix.range.width - 1;
         let y = self.y;
-        self.move_to(x, y)
+        self.move_to((x, y))
     }
 
     pub fn move_top(&mut self) -> Result<(), Error> {
         let x = self.x;
-        self.move_to(x, 0)
+        self.move_to((x, 0))
     }
 
     pub fn move_bottom(&mut self) -> Result<(), Error> {
         let x = self.x;
         let y = self.matrix.range.height - 1;
-        self.move_to(x, y)
+        self.move_to((x, y))
     }
 
     pub fn delete_char(&mut self) -> Result<(), Error> {
