@@ -14,7 +14,7 @@ pub struct TermSize {
 #[allow(dead_code)]
 impl TermSize {
     pub fn from_tty(tty: &Tty) -> Result<TermSize, Error> {
-        let mut ws: libc::winsize = unsafe { mem::uninitialized() };
+        let mut ws: libc::winsize = unsafe { mem::MaybeUninit::uninit().assume_init() };
         let res = unsafe { libc::ioctl(tty.as_raw_fd(), libc::TIOCGWINSZ, &mut ws) };
         if res != 0 {
             return Err(Error::last_os_error());
@@ -25,7 +25,7 @@ impl TermSize {
     }
 
     pub fn refresh(&mut self) -> Result<(), Error> {
-        let mut ws: libc::winsize = unsafe { mem::uninitialized() };
+        let mut ws: libc::winsize = unsafe { mem::MaybeUninit::uninit().assume_init() };
         let res = unsafe { libc::ioctl(self.tty.as_raw_fd(), libc::TIOCGWINSZ, &mut ws) };
         if res != 0 {
             return Err(Error::last_os_error());
