@@ -150,13 +150,11 @@ impl Matrix {
 
     pub fn fill_line(&self, s: &str, w: usize, c: char) -> String {
         let mut pos = 0usize;
-        let mut idx = 0usize;
         for c in s.chars() {
             if pos < w {
                 pos += self.get_width(c);
-                idx += 1
             } else {
-                return String::from_str(&s[..idx]).unwrap();
+                break;
             }
         }
         [s, String::from_iter(iter::repeat(c).take(w - pos)).as_str()].join("")
