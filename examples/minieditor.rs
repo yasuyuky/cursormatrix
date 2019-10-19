@@ -20,7 +20,7 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
             term.cursor.move_home().unwrap();
             term.cursor.move_down().unwrap();
         },
-        &Event::Delete => term.cursor.delete_char().unwrap(),
+        &Event::Delete => term.cursor.backspace().unwrap(),
         &Event::BackSpace => term.cursor.backspace().unwrap(),
         &Event::Chars(ref s) => {
             use unicode_normalization::UnicodeNormalization;
