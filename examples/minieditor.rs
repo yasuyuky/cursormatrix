@@ -16,7 +16,7 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
         &Event::Arrow(Direction::Right) => term.cursor.move_right().unwrap(),
         &Event::Ctrl('D') => term.cursor.delete_char().unwrap(),
         &Event::Return => {
-            term.cursor.print_here("\n").unwrap();
+            term.cursor.print_here("↩︎").unwrap();
             term.cursor.move_home().unwrap();
             term.cursor.move_down().unwrap();
         },
@@ -41,7 +41,7 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
 fn main() {
     let (mut term, erx) = Term::with_input(Some(Duration::from_secs(10)), true).expect("term");
 
-    term.cursor.print_fill_here("async!!!", 10).unwrap();
+    term.cursor.print_here("edit").unwrap();
     loop {
         if match erx.recv() {
             Ok(ev) => !handle_event(&ev, &mut term),
