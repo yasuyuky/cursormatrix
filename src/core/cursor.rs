@@ -40,6 +40,7 @@ pub struct Cursor {
     pub y: usize,
     commands: CursorCommand,
     matrix: Matrix,
+    cjk: bool,
 }
 
 #[allow(dead_code)]
@@ -49,7 +50,8 @@ impl Cursor {
         Ok(Cursor { x: 0,
                     y: 0,
                     commands: CursorCommand::from_terminfo(terminfo),
-                    matrix: Matrix::from_tty(tty, cjk)? })
+                    matrix: Matrix::from_tty(tty, cjk)?,
+                    cjk })
     }
 
     fn setup_sighandler() -> Result<(), Error> {
@@ -107,7 +109,10 @@ impl Cursor {
     }
 
     pub fn print_here(&mut self, s: &str) -> Result<(), Error> {
-        let w = UnicodeWidthStr::width(s);
+        let w = match self.cjk {
+            true => UnicodeWidthStr::width(s),
+            false => UnicodeWidthStr::width_cjk(s),
+        };
         self.print_fill_here(s, w)
     }
 
