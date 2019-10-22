@@ -79,7 +79,7 @@ impl Matrix {
 
     pub fn put_buffer(&mut self, x: usize, y: usize, w: usize, s: &str) -> (usize, String) {
         let ws = self.fill_line(s, w, ' ');
-        let replace_data = self.create_pad_str(&ws);
+        let replace_data = self.create_padstr(&ws);
         let end = *[x + replace_data.len(), self.range.width].iter().min().unwrap();
         let new_vecpadstr = self.data[y].iter()
                                         .enumerate()
@@ -106,7 +106,7 @@ impl Matrix {
             .collect()
     }
 
-    pub fn create_pad_str(&self, s: &str) -> Vec<PadStr> {
+    fn create_padstr(&self, s: &str) -> Vec<PadStr> {
         let s_with_w = s.chars()
                         .map(|c| (c.to_string(), self.get_width(c)))
                         .collect::<Vec<(String, usize)>>();
