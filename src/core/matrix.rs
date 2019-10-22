@@ -96,13 +96,13 @@ impl Matrix {
                                         })
                                         .collect::<Vec<PadStr>>();
         self.data[y] = new_vecpadstr;
-        (end, Self::get_partial_str_from_padstr(&self.data[y], x, end))
+        (end, Self::subpadstr(&self.data[y], x, end))
     }
 
     pub fn lines(&self) -> Vec<String> {
         self.data
             .iter()
-            .map(|l| Self::get_partial_str_from_padstr(l, 0, self.range.width))
+            .map(|l| Self::subpadstr(l, 0, self.range.width))
             .collect()
     }
 
@@ -135,17 +135,17 @@ impl Matrix {
         deq.into_iter().collect()
     }
 
-    fn get_partial_str_from_padstr(vecpadstr: &[PadStr], start: usize, end: usize) -> String {
-        let end_ = match vecpadstr[end - 1] {
+    fn subpadstr(padstrs: &[PadStr], start: usize, end: usize) -> String {
+        let end_ = match padstrs[end - 1] {
             PadStr::UStr(_, 2) => end - 1,
             _ => end,
         };
-        vecpadstr[start..end_].iter()
-                              .filter_map(|iu| match *iu {
-                                  PadStr::UStr(ref u, _) => Some(u.clone()),
-                                  PadStr::Pad => None,
-                              })
-                              .collect()
+        padstrs[start..end_].iter()
+                            .filter_map(|iu| match *iu {
+                                PadStr::UStr(ref u, _) => Some(u.clone()),
+                                PadStr::Pad => None,
+                            })
+                            .collect()
     }
 
     pub fn fill_line(&self, s: &str, w: usize, c: char) -> String {
