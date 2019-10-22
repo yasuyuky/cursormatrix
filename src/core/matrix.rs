@@ -55,9 +55,7 @@ impl Matrix {
 
     pub fn refresh(&mut self) -> Result<(), Error> {
         self.range.refresh()?;
-        self.data.resize(self.range.height,
-                         iter::repeat(PadStr::from_str(" ", self.cjk)).take(self.range.width)
-                                                                      .collect());
+        self.data.resize(self.range.height, Vec::new());
         for d in self.data.iter_mut() {
             d.resize(self.range.width, PadStr::from_str(" ", self.cjk))
         }
