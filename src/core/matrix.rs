@@ -105,11 +105,11 @@ impl Matrix {
     }
 
     fn create_padstr(&self, s: &str) -> Vec<PadStr> {
-        let s_with_w = s.chars()
-                        .map(|c| (c.to_string(), self.get_width(c)))
-                        .collect::<Vec<(String, usize)>>();
+        let sws = s.chars()
+                   .map(|c| (c.to_string(), self.get_width(c)))
+                   .collect::<Vec<(String, usize)>>();
         let mut deq: VecDeque<PadStr> = VecDeque::new();
-        for &(ref s, ref w) in s_with_w.iter() {
+        for &(ref s, ref w) in sws.iter() {
             match *w {
                 0 => match deq.pop_back() {
                     Some(PadStr::UStr(ref us, _)) => {
