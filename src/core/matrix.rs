@@ -16,7 +16,7 @@ pub enum Rune {
 
 #[allow(dead_code)]
 impl Rune {
-    pub fn from_str(s: &str, cjk: bool) -> Rune {
+    pub fn from_str(s: &str, cjk: bool) -> Self {
         if cjk {
             Rune::UStr(String::from_str(s).unwrap(), UWStr::width_cjk(s))
         } else {
@@ -24,7 +24,7 @@ impl Rune {
         }
     }
 
-    pub fn push_str(&mut self, s: &str, cjk: bool) -> Rune {
+    pub fn push_str(&mut self, s: &str, cjk: bool) -> Self {
         match *self {
             Rune::UStr(ref mut os, _) => {
                 os.push_str(s);
