@@ -57,7 +57,7 @@ impl Matrix {
         self.range.refresh()?;
         self.data.resize(self.range.height, Vec::new());
         for d in self.data.iter_mut() {
-            d.resize(self.range.width, PadStr::from_str(" ", self.cjk))
+            d.resize(self.range.width, PadStr::Pad)
         }
         Ok(())
     }
