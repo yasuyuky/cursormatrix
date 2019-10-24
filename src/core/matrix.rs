@@ -9,28 +9,28 @@ use std::str::FromStr;
 
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
-pub enum PadStr {
+pub enum Rune {
     UStr(String, usize),
     Pad,
 }
 
 #[allow(dead_code)]
-impl PadStr {
-    pub fn from_str(s: &str, cjk: bool) -> PadStr {
+impl Rune {
+    pub fn from_str(s: &str, cjk: bool) -> Rune {
         if cjk {
-            PadStr::UStr(String::from_str(s).unwrap(), UWStr::width_cjk(s))
+            Rune::UStr(String::from_str(s).unwrap(), UWStr::width_cjk(s))
         } else {
-            PadStr::UStr(String::from_str(s).unwrap(), UWStr::width(s))
+            Rune::UStr(String::from_str(s).unwrap(), UWStr::width(s))
         }
     }
 
-    pub fn push_str(&mut self, s: &str, cjk: bool) -> PadStr {
+    pub fn push_str(&mut self, s: &str, cjk: bool) -> Rune {
         match *self {
-            PadStr::UStr(ref mut os, _) => {
+            Rune::UStr(ref mut os, _) => {
                 os.push_str(s);
                 Self::from_str(os.as_str(), cjk)
             },
-            PadStr::Pad => PadStr::Pad,
+            Rune::Pad => Rune::Pad,
         }
     }
 }
@@ -38,7 +38,7 @@ impl PadStr {
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct Matrix {
-    data: Vec<Vec<PadStr>>,
+    data: Vec<Vec<Rune>>,
     pub range: TermSize,
     cjk: bool,
 }
@@ -57,7 +57,7 @@ impl Matrix {
         self.range.refresh()?;
         self.data.resize(self.range.height, Vec::new());
         for d in self.data.iter_mut() {
-            d.resize(self.range.width, PadStr::Pad)
+            d.resize(self.range.width, Rune::Pad)
         }
         Ok(())
     }
@@ -92,7 +92,7 @@ impl Matrix {
                                                 None
                                             }
                                         })
-                                        .collect::<Vec<PadStr>>();
+                                        .collect::<Vec<Rune>>();
         self.data[y] = new_vecpadstr;
         (end, Self::subpadstr(&self.data[y], x, end))
     }
@@ -104,28 +104,28 @@ impl Matrix {
             .collect()
     }
 
-    fn create_padstr(&self, s: &str) -> Vec<PadStr> {
+    fn create_padstr(&self, s: &str) -> Vec<Rune> {
         let sws = s.chars()
                    .map(|c| (c.to_string(), self.get_width(c)))
                    .collect::<Vec<(String, usize)>>();
-        let mut deq: VecDeque<PadStr> = VecDeque::new();
+        let mut deq: VecDeque<Rune> = VecDeque::new();
         for &(ref s, ref w) in sws.iter() {
             match *w {
                 0 => match deq.pop_back() {
-                    Some(PadStr::UStr(ref us, _)) => {
-                        deq.push_back(PadStr::from_str(&(us.clone() + s), self.cjk));
+                    Some(Rune::UStr(ref us, _)) => {
+                        deq.push_back(Rune::from_str(&(us.clone() + s), self.cjk));
                     },
-                    Some(PadStr::Pad) => {
+                    Some(Rune::Pad) => {
                         let i = deq.len() - 2;
                         deq[i] = deq[i].push_str(s.as_str(), self.cjk);
-                        deq.push_back(PadStr::Pad)
+                        deq.push_back(Rune::Pad)
                     },
-                    None => deq.push_back(PadStr::from_str(s, self.cjk)),
+                    None => deq.push_back(Rune::from_str(s, self.cjk)),
                 },
                 n => {
-                    deq.push_back(PadStr::from_str(s, self.cjk));
+                    deq.push_back(Rune::from_str(s, self.cjk));
                     for _ in 1..n {
-                        deq.push_back(PadStr::Pad)
+                        deq.push_back(Rune::Pad)
                     }
                 },
             }
@@ -133,15 +133,15 @@ impl Matrix {
         deq.into_iter().collect()
     }
 
-    fn subpadstr(padstrs: &[PadStr], start: usize, end: usize) -> String {
+    fn subpadstr(padstrs: &[Rune], start: usize, end: usize) -> String {
         let end_ = match padstrs[end - 1] {
-            PadStr::UStr(_, 2) => end - 1,
+            Rune::UStr(_, 2) => end - 1,
             _ => end,
         };
         padstrs[start..end_].iter()
                             .filter_map(|iu| match *iu {
-                                PadStr::UStr(ref u, _) => Some(u.clone()),
-                                PadStr::Pad => None,
+                                Rune::UStr(ref u, _) => Some(u.clone()),
+                                Rune::Pad => None,
                             })
                             .collect()
     }
