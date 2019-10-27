@@ -1,10 +1,9 @@
-extern crate unicode_width;
-use self::unicode_width::UnicodeWidthChar as UWChar;
 use crate::core::{Rune, TermSize, Tty};
 use std::collections::VecDeque;
 use std::io::Error;
 use std::iter;
 use std::iter::FromIterator;
+use unicode_width::UnicodeWidthChar as UWChar;
 
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
