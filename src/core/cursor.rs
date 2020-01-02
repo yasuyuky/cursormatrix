@@ -109,9 +109,10 @@ impl Cursor {
     }
 
     pub fn print_here(&mut self, s: &str) -> Result<(), Error> {
-        let w = match self.cjk {
-            true => UnicodeWidthStr::width(s),
-            false => UnicodeWidthStr::width_cjk(s),
+        let w = if self.cjk {
+            UnicodeWidthStr::width(s)
+        } else {
+            UnicodeWidthStr::width_cjk(s)
         };
         self.print_fill_here(s, w)
     }
