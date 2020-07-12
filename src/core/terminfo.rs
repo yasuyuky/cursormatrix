@@ -13,7 +13,7 @@ impl TermInfo {
                                          bools: Default::default(),
                                          numbers: Default::default(),
                                          strings: Default::default() };
-        TermInfo { info: terminfo::TermInfo::from_env().unwrap_or({ empty }) }
+        TermInfo { info: terminfo::TermInfo::from_env().unwrap_or(empty) }
     }
 
     pub fn get_string(&self, command: &str) -> String {
