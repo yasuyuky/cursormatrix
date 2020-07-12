@@ -10,7 +10,7 @@ use unicode_width::UnicodeWidthChar as UWChar;
 pub struct Matrix {
     data: Vec<Vec<Rune>>,
     pub range: TermSize,
-    cjk: bool,
+    pub cjk: bool,
 }
 
 #[allow(dead_code)]

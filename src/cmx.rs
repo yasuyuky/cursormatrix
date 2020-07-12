@@ -1,4 +1,4 @@
-use crate::core::{Cursor, TermInfo, TermiosCond, Tty};
+use crate::core::{Cursor, Matrix, TermInfo, TermiosCond, Tty};
 use crate::events::{Event, CTRL_KEY_DICT, DEFAULT_KEY_DICT, TERMINFO_KEY_DICT};
 use crossbeam;
 use libc;
@@ -9,15 +9,20 @@ use std::mem;
 use std::os::unix::io::AsRawFd;
 use std::ptr;
 use std::string::FromUtf8Error;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
+use unicode_width::UnicodeWidthStr;
+
+static SIGWINCH_RECIEVED: AtomicBool = AtomicBool::new(false);
 
 #[allow(dead_code)]
 #[derive(Clone)]
 pub struct Term {
     pub pattern_dict: BTreeMap<Vec<u8>, Event>,
     pub cursor: Cursor,
+    pub matrix: Matrix,
     pub terminfo: TermInfo,
     termioscond: TermiosCond,
     tty: Tty,
@@ -34,16 +39,28 @@ impl Term {
     }
 
     pub fn from_cjk(cjk: bool) -> Result<Term, Error> {
+        Self::setup_sighandler()?;
         let terminfo = TermInfo::new();
         let tty = Tty::new().expect("open tty");
         let mut term = Term { pattern_dict: Self::create_pattern_dict(&terminfo),
-                              cursor: Cursor::new(&terminfo, &tty, cjk)?,
+                              cursor: Cursor::new(&terminfo)?,
+                              matrix: Matrix::from_tty(&tty, cjk)?,
                               terminfo,
                               termioscond: TermiosCond::from_tty(&tty),
                               tty };
         term.write_raw_command("smcup")?;
         term.cursor.clear()?;
         Ok(term)
+    }
+
+    fn setup_sighandler() -> Result<(), Error> {
+        let mut sigaction_winch: libc::sigaction = unsafe { mem::zeroed() };
+        sigaction_winch.sa_sigaction = sigwinch_handler as libc::size_t;
+        let res = unsafe { libc::sigaction(libc::SIGWINCH, &sigaction_winch, ptr::null_mut()) };
+        if res != 0 {
+            return Err(Error::last_os_error());
+        }
+        Ok(())
     }
 
     pub fn with_input(duration: Option<Duration>, cjk: bool) -> Result<(Term, Receiver<Event>), Error> {
@@ -53,6 +70,93 @@ impl Term {
         let mut t2 = term.clone();
         thread::spawn(move || t2.get_input_async(duration, etx));
         Ok((term, erx))
+    }
+
+    pub fn clear(&mut self) -> Result<(), std::io::Error> {
+        self.reload()?;
+        self.cursor.clear()?;
+        self.matrix.clear()
+    }
+
+    pub fn reload(&mut self) -> Result<(), Error> {
+        self.check_winch()
+    }
+
+    pub fn print_fill(&mut self, (x, y): (usize, usize), s: &str, w: usize) -> Result<(), Error> {
+        let rs = s.replace(|c| ['\n', '\r'].iter().any(|r| c == *r), "");
+        let (end, ss) = self.matrix.put_buffer(x, y, w, &rs);
+        self.cursor.print_fill((end, y), &ss)
+    }
+
+    pub fn print_fill_here(&mut self, s: &str, w: usize) -> Result<(), Error> {
+        self.print_fill(self.cursor.get_pos(), s, w)
+    }
+
+    pub fn print_here(&mut self, s: &str) -> Result<(), Error> {
+        let w = if self.matrix.cjk {
+            UnicodeWidthStr::width(s)
+        } else {
+            UnicodeWidthStr::width_cjk(s)
+        };
+        self.print_fill_here(s, w)
+    }
+
+    pub fn move_to(&mut self, (x, y): (usize, usize)) -> Result<(), Error> {
+        let x = std::cmp::min(x, self.matrix.range.width - 1);
+        let y = std::cmp::min(y, self.matrix.range.height - 1);
+        self.cursor.move_to((x, y))
+    }
+
+    pub fn move_up(&mut self) -> Result<(), Error> {
+        self.cursor.move_up()
+    }
+
+    pub fn move_down(&mut self) -> Result<(), Error> {
+        self.cursor.move_down(self.matrix.range.height - 1)
+    }
+
+    pub fn move_left(&mut self) -> Result<(), Error> {
+        self.cursor.move_left()
+    }
+
+    pub fn move_right(&mut self) -> Result<(), Error> {
+        self.cursor.move_right(self.matrix.range.width - 1)
+    }
+
+    pub fn move_home(&mut self) -> Result<(), Error> {
+        self.move_to((0, self.cursor.y))
+    }
+
+    pub fn move_end(&mut self) -> Result<(), Error> {
+        self.move_to((self.matrix.range.width - 1, self.cursor.y))
+    }
+
+    pub fn move_top(&mut self) -> Result<(), Error> {
+        self.move_to((self.cursor.x, 0))
+    }
+
+    pub fn move_bottom(&mut self) -> Result<(), Error> {
+        self.move_to((self.cursor.x, self.matrix.range.height - 1))
+    }
+
+    fn rewrite_matrix(&mut self) -> Result<(), Error> {
+        self.cursor.clear()?;
+        let w = self.matrix.range.width;
+        for (i, l) in self.matrix.lines().iter().enumerate() {
+            self.print_fill((0, i), l, w)?
+        }
+        Ok(())
+    }
+
+    fn check_winch(&mut self) -> Result<(), Error> {
+        if SIGWINCH_RECIEVED.load(Ordering::SeqCst) {
+            SIGWINCH_RECIEVED.store(false, Ordering::SeqCst);
+            let (x, y) = self.cursor.get_pos();
+            self.matrix.refresh()?;
+            self.rewrite_matrix()?;
+            self.cursor.move_to((x, y))?
+        }
+        Ok(())
     }
 
     fn write_raw_command(&mut self, command: &str) -> Result<(), Error> {
@@ -223,4 +327,9 @@ impl Drop for Term {
     fn drop(&mut self) {
         let _ = self.write_raw_command("rmcup");
     }
+}
+
+#[allow(dead_code)]
+extern "C" fn sigwinch_handler(_: i32) {
+    SIGWINCH_RECIEVED.store(true, Ordering::SeqCst);
 }
