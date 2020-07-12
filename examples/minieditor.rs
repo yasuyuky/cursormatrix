@@ -16,7 +16,7 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
         &Event::Arrow(Direction::Right) => term.move_right().unwrap(),
         &Event::Ctrl('D') => term.cursor.delete_char().unwrap(),
         &Event::Return => {
-            term.print_here("↩︎").unwrap();
+            term.print("↩︎").unwrap();
             term.move_home().unwrap();
             term.move_down().unwrap();
         },
@@ -24,11 +24,11 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
         &Event::BackSpace => term.cursor.backspace().unwrap(),
         &Event::Chars(ref s) => {
             use unicode_normalization::UnicodeNormalization;
-            term.print_here(&format!("{}", s.nfkc().collect::<String>())).unwrap();
+            term.print(&format!("{}", s.nfkc().collect::<String>())).unwrap();
         },
         e => {
             let pos = term.cursor.get_pos();
-            term.print_here(format!("e: {:?}, pos{:?}", e, pos).as_str()).unwrap();
+            term.print(format!("e: {:?}, pos{:?}", e, pos).as_str()).unwrap();
         },
     }
     true
@@ -37,7 +37,7 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
 fn main() {
     let (mut term, erx) = Term::with_input(Some(Duration::from_secs(10)), true).expect("term");
 
-    term.print_here("edit").unwrap();
+    term.print("edit").unwrap();
     loop {
         if match erx.recv() {
             Ok(ev) => !handle_event(&ev, &mut term),
