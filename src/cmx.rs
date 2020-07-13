@@ -64,7 +64,7 @@ impl Term {
 
         let (etx, erx) = channel::<Event>();
         let mut t2 = term.clone();
-        thread::spawn(move || t2.get_input_async(duration, etx));
+        thread::spawn(move || t2.get_input(duration, etx));
         Ok((term, erx))
     }
 
@@ -166,43 +166,7 @@ impl Term {
         stdout().flush()
     }
 
-    pub fn get_input_sync(&mut self, maybe_timeout: Option<Duration>) -> Result<Event, Error> {
-        let timeout: *mut libc::timeval = match maybe_timeout {
-            None => ptr::null_mut(),
-            Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,
-                                             tv_usec: (to.subsec_nanos() as libc::suseconds_t) / 1000 },
-        };
-
-        let rawfd = self.tty.as_raw_fd();
-        let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
-        unsafe { libc::FD_SET(rawfd, &mut readfds) };
-        let mut buf = Vec::<u8>::new();
-        loop {
-            match unsafe { libc::select(rawfd + 1, &mut readfds, ptr::null_mut(), ptr::null_mut(), timeout) } {
-                -1 => {
-                    let err = Error::last_os_error();
-                    match err.kind() {
-                        ErrorKind::Interrupted => continue,
-                        _ => return Err(err),
-                    }
-                },
-                0 => {
-                    assert!(maybe_timeout.is_some());
-                    return Ok(Event::TimeOut);
-                },
-                _ => {
-                    self.tty.read_to_end(&mut buf)?;
-                    assert!(!buf.is_empty());
-                    match Self::convert_to_event(&self.pattern_dict, &buf) {
-                        Ok(e) => return Ok(e),
-                        Err(_) => continue,
-                    }
-                },
-            }
-        }
-    }
-
-    pub fn get_input_async(&mut self, maybe_timeout: Option<Duration>, etx: Sender<Event>) -> Result<(), Error> {
+    pub fn get_input(&mut self, maybe_timeout: Option<Duration>, etx: Sender<Event>) -> Result<(), Error> {
         crossbeam::scope(|scope| {
             let (btx, brx) = channel::<u8>();
             let etx_clone = etx.clone();
