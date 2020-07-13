@@ -47,9 +47,8 @@ impl Cursor {
         Self::write_raw_command(&self.commands.clear)
     }
 
-    pub fn print_fill(&mut self, (x, y): (usize, usize), s: &str) -> Result<(), Error> {
+    pub fn print(&mut self, s: &str) -> Result<(), Error> {
         stdout().write_fmt(format_args!("{}", s))?;
-        self.move_to((x, y))?;
         stdout().flush()
     }
 

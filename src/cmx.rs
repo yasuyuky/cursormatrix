@@ -78,12 +78,6 @@ impl Term {
         self.check_winch()
     }
 
-    pub fn print_fill(&mut self, (x, y): (usize, usize), s: &str, w: usize) -> Result<(), Error> {
-        let rs = s.replace(|c| ['\n', '\r'].iter().any(|r| c == *r), "");
-        let (end, ss) = self.matrix.put_buffer(x, y, w, &rs);
-        self.cursor.print_fill((end, y), &ss)
-    }
-
     fn width_str(&self, s: &str) -> usize {
         if self.matrix.cjk {
             UnicodeWidthStr::width(s)
@@ -93,8 +87,10 @@ impl Term {
     }
 
     pub fn print(&mut self, s: &str) -> Result<(), Error> {
+        let (x, y) = self.cursor.get_pos();
         let w = self.width_str(s);
-        self.print_fill(self.cursor.get_pos(), s, w)
+        self.cursor.print(s)?;
+        self.cursor.move_to((x + w, y))
     }
 
     pub fn move_to(&mut self, (x, y): (usize, usize)) -> Result<(), Error> {
@@ -137,9 +133,9 @@ impl Term {
 
     fn rewrite_matrix(&mut self) -> Result<(), Error> {
         self.cursor.clear()?;
-        let w = self.matrix.size.width;
         for (i, l) in self.matrix.lines().iter().enumerate() {
-            self.print_fill((0, i), l, w)?
+            self.move_to((0, i))?;
+            self.print(l)?
         }
         Ok(())
     }
