@@ -171,7 +171,7 @@ impl Term {
             let (btx, brx) = channel::<u8>();
             let etx_clone = etx.clone();
             let dic = self.pattern_dict.clone();
-            scope.spawn(move |_| Self::recieve_to_convert(dic, brx, etx_clone));
+            scope.spawn(move |_| Self::recieve_to_convert(&dic, brx, etx_clone));
 
             let timeout: *mut libc::timeval = match maybe_timeout {
                 None => ptr::null_mut(),
@@ -208,7 +208,7 @@ impl Term {
         }).unwrap()
     }
 
-    fn recieve_to_convert(patterns: BTreeMap<Vec<u8>, Event>, brx: Receiver<u8>, etx: Sender<Event>) {
+    fn recieve_to_convert(patterns: &BTreeMap<Vec<u8>, Event>, brx: Receiver<u8>, etx: Sender<Event>) {
         let mut timeout = Duration::from_millis(1000);
         let mut buf = Vec::<u8>::new();
 
@@ -244,7 +244,7 @@ impl Term {
                 Err(_) => match buf.len() {
                     0 => continue 'recv_byte,
                     _ => {
-                        match Self::convert_to_event(&patterns, &buf) {
+                        match Self::convert_to_event(patterns, &buf) {
                             Ok(e) => etx.send(e).unwrap(),
                             Err(_) => return,
                         }
