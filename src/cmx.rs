@@ -31,10 +31,6 @@ pub struct Term {
 #[allow(dead_code)]
 impl Term {
     pub fn new() -> Result<Term, Error> {
-        Self::from_cjk(false)
-    }
-
-    pub fn cjk() -> Result<Term, Error> {
         Self::from_cjk(true)
     }
 
