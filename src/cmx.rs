@@ -166,45 +166,50 @@ impl Term {
         stdout().flush()
     }
 
-    pub fn get_input(&mut self, maybe_timeout: Option<Duration>, etx: Sender<Event>) -> Result<(), Error> {
+    fn send_buffer(&mut self, btx: &Sender<u8>) -> Result<(), Error> {
+        let mut buf = Vec::<u8>::new();
+        self.tty.read_to_end(&mut buf)?;
+        for b in buf.iter() {
+            btx.send(*b).unwrap()
+        }
+        Ok(buf.clear())
+    }
+
+    fn loop_select(&mut self, btx: Sender<u8>, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
+        let timeout = match timeout {
+            None => ptr::null_mut(),
+            Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,
+                                             tv_usec: (to.subsec_nanos() as libc::suseconds_t) / 1000 },
+        };
+        let rawfd = self.tty.as_raw_fd();
+        let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
+        unsafe { libc::FD_SET(rawfd, &mut readfds) };
+        loop {
+            match unsafe { libc::select(rawfd + 1, &mut readfds, ptr::null_mut(), ptr::null_mut(), timeout) } {
+                -1 => {
+                    let err = Error::last_os_error();
+                    match Error::last_os_error().kind() {
+                        ErrorKind::Interrupted => continue,
+                        _ => return Err(err),
+                    }
+                },
+                0 => {
+                    return Ok(etx.send(Event::TimeOut).unwrap());
+                },
+                _ => {
+                    self.send_buffer(&btx)?;
+                },
+            }
+        }
+    }
+
+    pub fn get_input(&mut self, timeout: Option<Duration>, etx: Sender<Event>) -> Result<(), Error> {
         crossbeam::scope(|scope| {
             let (btx, brx) = channel::<u8>();
             let etx_clone = etx.clone();
             let dic = self.pattern_dict.clone();
             scope.spawn(move |_| Self::recieve_to_convert(&dic, brx, etx_clone));
-
-            let timeout: *mut libc::timeval = match maybe_timeout {
-                None => ptr::null_mut(),
-                Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,
-                                                 tv_usec: (to.subsec_nanos() as libc::suseconds_t) / 1000 },
-            };
-
-            let rawfd = self.tty.as_raw_fd();
-            let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
-            unsafe { libc::FD_SET(rawfd, &mut readfds) };
-            loop {
-                match unsafe { libc::select(rawfd + 1, &mut readfds, ptr::null_mut(), ptr::null_mut(), timeout) } {
-                    -1 => {
-                        let err = Error::last_os_error();
-                        match err.kind() {
-                            ErrorKind::Interrupted => continue,
-                            _ => return Err(err),
-                        }
-                    },
-                    0 => {
-                        etx.send(Event::TimeOut).unwrap();
-                        return Ok(());
-                    },
-                    _ => {
-                        let mut buf = Vec::<u8>::new();
-                        self.tty.read_to_end(&mut buf)?;
-                        for b in buf.iter() {
-                            btx.send(b.clone()).unwrap()
-                        }
-                        buf.clear();
-                    },
-                }
-            }
+            self.loop_select(btx, etx, timeout)
         }).unwrap()
     }
 
