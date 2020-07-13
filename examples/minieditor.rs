@@ -1,5 +1,3 @@
-extern crate cursormatrix;
-
 use cursormatrix::{Direction, Event, Term};
 use std::time::Duration;
 

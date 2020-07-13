@@ -1,11 +1,5 @@
-extern crate crossbeam;
 #[macro_use]
 extern crate lazy_static;
-extern crate libc;
-extern crate term;
-extern crate termios;
-extern crate unicode_normalization;
-extern crate unicode_width;
 
 mod cmx;
 mod core;
