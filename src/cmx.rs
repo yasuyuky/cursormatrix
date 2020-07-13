@@ -26,6 +26,7 @@ pub struct Term {
     pub terminfo: TermInfo,
     termioscond: TermiosCond,
     tty: Tty,
+    cjk: bool,
 }
 
 #[allow(dead_code)]
@@ -40,10 +41,11 @@ impl Term {
         let tty = Tty::new().expect("open tty");
         let mut term = Term { pattern_dict: Self::create_pattern_dict(&terminfo),
                               cursor: Cursor::new(&terminfo)?,
-                              matrix: Matrix::from_tty(&tty, cjk)?,
+                              matrix: Matrix::from_tty(&tty)?,
                               terminfo,
                               termioscond: TermiosCond::from_tty(&tty),
-                              tty };
+                              tty,
+                              cjk };
         term.write_raw_command("smcup")?;
         term.cursor.clear()?;
         Ok(term)
@@ -79,7 +81,7 @@ impl Term {
     }
 
     fn width_str(&self, s: &str) -> usize {
-        if self.matrix.cjk {
+        if self.cjk {
             UnicodeWidthStr::width(s)
         } else {
             UnicodeWidthStr::width_cjk(s)

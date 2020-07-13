@@ -5,14 +5,12 @@ use std::io::Error;
 #[derive(Clone, Debug)]
 pub struct Matrix {
     pub size: TermSize,
-    pub cjk: bool,
 }
 
 #[allow(dead_code)]
 impl Matrix {
-    pub fn from_tty(tty: &Tty, cjk: bool) -> Result<Matrix, Error> {
-        let mut matrix = Matrix { size: TermSize::from_tty(tty)?,
-                                  cjk };
+    pub fn from_tty(tty: &Tty) -> Result<Matrix, Error> {
+        let mut matrix = Matrix { size: TermSize::from_tty(tty)? };
         matrix.refresh()?;
         Ok(matrix)
     }
