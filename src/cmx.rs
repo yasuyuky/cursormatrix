@@ -203,7 +203,7 @@ impl Term {
         }
     }
 
-    pub fn get_input(&mut self, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
+    fn get_input(&mut self, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
         crossbeam::scope(|scope| {
             let (btx, brx) = channel::<u8>();
             let etx_clone = etx.clone();
