@@ -13,7 +13,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
-use unicode_width::UnicodeWidthStr;
+use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 static SIGWINCH_RECIEVED: AtomicBool = AtomicBool::new(false);
 
@@ -80,6 +80,14 @@ impl Term {
         self.check_winch()
     }
 
+    fn width_char(&self, c: char) -> usize {
+        if self.cjk {
+            UnicodeWidthChar::width(c).unwrap_or_default()
+        } else {
+            UnicodeWidthChar::width_cjk(c).unwrap_or_default()
+        }
+    }
+
     fn width_str(&self, s: &str) -> usize {
         if self.cjk {
             UnicodeWidthStr::width(s)
@@ -93,6 +101,23 @@ impl Term {
         let w = self.width_str(s);
         self.cursor.print(s)?;
         self.cursor.move_to((x + w, y))
+    }
+
+    pub fn print_to(&mut self, limit: usize, s: &str) -> Result<(), Error> {
+        let (x, y) = self.cursor.get_pos();
+        let mut end = x;
+        let s: String = s.chars()
+                         .flat_map(|c| {
+                             end += self.width_char(c);
+                             if end < limit {
+                                 Some(c)
+                             } else {
+                                 None
+                             }
+                         })
+                         .collect();
+        self.cursor.print(&s)?;
+        self.cursor.move_to((end, y))
     }
 
     pub fn move_to(&mut self, (x, y): (usize, usize)) -> Result<(), Error> {
