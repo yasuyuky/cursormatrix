@@ -73,7 +73,7 @@ impl Term {
     pub fn clear(&mut self) -> Result<(), std::io::Error> {
         self.reload()?;
         self.cursor.clear()?;
-        self.matrix.clear()
+        self.matrix.refresh()
     }
 
     pub fn reload(&mut self) -> Result<(), Error> {
@@ -96,8 +96,8 @@ impl Term {
     }
 
     pub fn move_to(&mut self, (x, y): (usize, usize)) -> Result<(), Error> {
-        let x = std::cmp::min(x, self.matrix.size.width - 1);
-        let y = std::cmp::min(y, self.matrix.size.height - 1);
+        let x = std::cmp::min(x, self.matrix.width - 1);
+        let y = std::cmp::min(y, self.matrix.height - 1);
         self.cursor.move_to((x, y))
     }
 
@@ -106,7 +106,7 @@ impl Term {
     }
 
     pub fn move_down(&mut self) -> Result<(), Error> {
-        self.cursor.move_down(self.matrix.size.height - 1)
+        self.cursor.move_down(self.matrix.height - 1)
     }
 
     pub fn move_left(&mut self) -> Result<(), Error> {
@@ -114,7 +114,7 @@ impl Term {
     }
 
     pub fn move_right(&mut self) -> Result<(), Error> {
-        self.cursor.move_right(self.matrix.size.width - 1)
+        self.cursor.move_right(self.matrix.width - 1)
     }
 
     pub fn move_home(&mut self) -> Result<(), Error> {
@@ -122,7 +122,7 @@ impl Term {
     }
 
     pub fn move_end(&mut self) -> Result<(), Error> {
-        self.move_to((self.matrix.size.width - 1, self.cursor.y))
+        self.move_to((self.matrix.width - 1, self.cursor.y))
     }
 
     pub fn move_top(&mut self) -> Result<(), Error> {
@@ -130,7 +130,7 @@ impl Term {
     }
 
     pub fn move_bottom(&mut self) -> Result<(), Error> {
-        self.move_to((self.cursor.x, self.matrix.size.height - 1))
+        self.move_to((self.cursor.x, self.matrix.height - 1))
     }
 
     fn check_winch(&mut self) -> Result<(), Error> {

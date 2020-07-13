@@ -1,25 +1,39 @@
-use crate::core::{TermSize, Tty};
+use crate::core::Tty;
+use libc;
 use std::io::Error;
+use std::mem;
+use std::os::unix::io::AsRawFd;
 
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct Matrix {
-    pub size: TermSize,
+    tty: Tty,
+    pub width: usize,
+    pub height: usize,
 }
 
 #[allow(dead_code)]
 impl Matrix {
-    pub fn from_tty(tty: &Tty) -> Result<Matrix, Error> {
-        let mut matrix = Matrix { size: TermSize::from_tty(tty)? };
-        matrix.refresh()?;
-        Ok(matrix)
+    pub fn from_tty(tty: &Tty) -> Result<Self, Error> {
+        let ws = Self::load_winsize(tty)?;
+        Ok(Self { tty: tty.clone(),
+                  width: ws.ws_col as usize,
+                  height: ws.ws_row as usize })
     }
 
     pub fn refresh(&mut self) -> Result<(), Error> {
-        self.size.refresh()
+        let ws = Self::load_winsize(&self.tty)?;
+        self.width = ws.ws_col as usize;
+        self.height = ws.ws_row as usize;
+        Ok(())
     }
 
-    pub fn clear(&mut self) -> Result<(), Error> {
-        self.refresh()
+    fn load_winsize(tty: &Tty) -> Result<libc::winsize, Error> {
+        let mut ws: libc::winsize = unsafe { mem::MaybeUninit::uninit().assume_init() };
+        let res = unsafe { libc::ioctl(tty.as_raw_fd(), libc::TIOCGWINSZ, &mut ws) };
+        if res != 0 {
+            return Err(Error::last_os_error());
+        }
+        Ok(ws)
     }
 }
