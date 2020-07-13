@@ -88,12 +88,16 @@ impl Term {
         self.cursor.print_fill((end, y), &ss)
     }
 
-    pub fn print(&mut self, s: &str) -> Result<(), Error> {
-        let w = if self.matrix.cjk {
+    fn width_str(&self, s: &str) -> usize {
+        if self.matrix.cjk {
             UnicodeWidthStr::width(s)
         } else {
             UnicodeWidthStr::width_cjk(s)
-        };
+        }
+    }
+
+    pub fn print(&mut self, s: &str) -> Result<(), Error> {
+        let w = self.width_str(s);
         self.print_fill(self.cursor.get_pos(), s, w)
     }
 
