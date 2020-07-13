@@ -64,7 +64,7 @@ impl Term {
 
         let (etx, erx) = channel::<Event>();
         let mut t2 = term.clone();
-        thread::spawn(move || t2.get_input(duration, etx));
+        thread::spawn(move || t2.get_input(etx, duration));
         Ok((term, erx))
     }
 
@@ -203,7 +203,7 @@ impl Term {
         }
     }
 
-    pub fn get_input(&mut self, timeout: Option<Duration>, etx: Sender<Event>) -> Result<(), Error> {
+    pub fn get_input(&mut self, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
         crossbeam::scope(|scope| {
             let (btx, brx) = channel::<u8>();
             let etx_clone = etx.clone();
