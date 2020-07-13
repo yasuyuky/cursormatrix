@@ -131,21 +131,11 @@ impl Term {
         self.move_to((self.cursor.x, self.matrix.size.height - 1))
     }
 
-    fn rewrite_matrix(&mut self) -> Result<(), Error> {
-        self.cursor.clear()?;
-        for (i, l) in self.matrix.lines().iter().enumerate() {
-            self.move_to((0, i))?;
-            self.print(l)?
-        }
-        Ok(())
-    }
-
     fn check_winch(&mut self) -> Result<(), Error> {
         if SIGWINCH_RECIEVED.load(Ordering::SeqCst) {
             SIGWINCH_RECIEVED.store(false, Ordering::SeqCst);
             let (x, y) = self.cursor.get_pos();
             self.matrix.refresh()?;
-            self.rewrite_matrix()?;
             self.cursor.move_to((x, y))?
         }
         Ok(())
