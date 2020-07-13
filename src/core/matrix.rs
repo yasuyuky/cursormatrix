@@ -9,7 +9,7 @@ use unicode_width::UnicodeWidthChar as UWChar;
 #[derive(Clone, Debug)]
 pub struct Matrix {
     data: Vec<Vec<Rune>>,
-    pub range: TermSize,
+    pub size: TermSize,
     pub cjk: bool,
 }
 
@@ -17,17 +17,17 @@ pub struct Matrix {
 impl Matrix {
     pub fn from_tty(tty: &Tty, cjk: bool) -> Result<Matrix, Error> {
         let mut matrix = Matrix { data: Vec::new(),
-                                  range: TermSize::from_tty(tty)?,
+                                  size: TermSize::from_tty(tty)?,
                                   cjk };
         matrix.refresh()?;
         Ok(matrix)
     }
 
     pub fn refresh(&mut self) -> Result<(), Error> {
-        self.range.refresh()?;
-        self.data.resize(self.range.height, Vec::new());
+        self.size.refresh()?;
+        self.data.resize(self.size.height, Vec::new());
         for d in self.data.iter_mut() {
-            d.resize(self.range.width, Rune::Pad)
+            d.resize(self.size.width, Rune::Pad)
         }
         Ok(())
     }
@@ -48,15 +48,15 @@ impl Matrix {
     pub fn put_buffer(&mut self, x: usize, y: usize, w: usize, s: &str) -> (usize, String) {
         let ws = self.fill_line(s, w, ' ');
         let replace_data = self.create_padstr(&ws);
-        let end = *[x + replace_data.len(), self.range.width].iter().min().unwrap();
+        let end = *[x + replace_data.len(), self.size.width].iter().min().unwrap();
         let new_vecpadstr = self.data[y].iter()
                                         .enumerate()
                                         .filter_map(|(i, pad_uc)| {
                                             if i < x {
                                                 Some(pad_uc.clone())
-                                            } else if i < x + replace_data.len() && i < self.range.width {
+                                            } else if i < x + replace_data.len() && i < self.size.width {
                                                 Some(replace_data[i - x].clone())
-                                            } else if i < self.range.width {
+                                            } else if i < self.size.width {
                                                 Some(pad_uc.clone())
                                             } else {
                                                 None
@@ -70,7 +70,7 @@ impl Matrix {
     pub fn lines(&self) -> Vec<String> {
         self.data
             .iter()
-            .map(|l| Self::subpadstr(l, 0, self.range.width))
+            .map(|l| Self::subpadstr(l, 0, self.size.width))
             .collect()
     }
 

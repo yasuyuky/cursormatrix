@@ -98,8 +98,8 @@ impl Term {
     }
 
     pub fn move_to(&mut self, (x, y): (usize, usize)) -> Result<(), Error> {
-        let x = std::cmp::min(x, self.matrix.range.width - 1);
-        let y = std::cmp::min(y, self.matrix.range.height - 1);
+        let x = std::cmp::min(x, self.matrix.size.width - 1);
+        let y = std::cmp::min(y, self.matrix.size.height - 1);
         self.cursor.move_to((x, y))
     }
 
@@ -108,7 +108,7 @@ impl Term {
     }
 
     pub fn move_down(&mut self) -> Result<(), Error> {
-        self.cursor.move_down(self.matrix.range.height - 1)
+        self.cursor.move_down(self.matrix.size.height - 1)
     }
 
     pub fn move_left(&mut self) -> Result<(), Error> {
@@ -116,7 +116,7 @@ impl Term {
     }
 
     pub fn move_right(&mut self) -> Result<(), Error> {
-        self.cursor.move_right(self.matrix.range.width - 1)
+        self.cursor.move_right(self.matrix.size.width - 1)
     }
 
     pub fn move_home(&mut self) -> Result<(), Error> {
@@ -124,7 +124,7 @@ impl Term {
     }
 
     pub fn move_end(&mut self) -> Result<(), Error> {
-        self.move_to((self.matrix.range.width - 1, self.cursor.y))
+        self.move_to((self.matrix.size.width - 1, self.cursor.y))
     }
 
     pub fn move_top(&mut self) -> Result<(), Error> {
@@ -132,12 +132,12 @@ impl Term {
     }
 
     pub fn move_bottom(&mut self) -> Result<(), Error> {
-        self.move_to((self.cursor.x, self.matrix.range.height - 1))
+        self.move_to((self.cursor.x, self.matrix.size.height - 1))
     }
 
     fn rewrite_matrix(&mut self) -> Result<(), Error> {
         self.cursor.clear()?;
-        let w = self.matrix.range.width;
+        let w = self.matrix.size.width;
         for (i, l) in self.matrix.lines().iter().enumerate() {
             self.print_fill((0, i), l, w)?
         }
