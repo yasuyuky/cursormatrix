@@ -80,7 +80,7 @@ impl Term {
         self.check_winch()
     }
 
-    fn width_char(&self, c: char) -> usize {
+    pub fn width_char(&self, c: char) -> usize {
         if self.cjk {
             UnicodeWidthChar::width(c).unwrap_or_default()
         } else {
@@ -88,7 +88,7 @@ impl Term {
         }
     }
 
-    fn width_str(&self, s: &str) -> usize {
+    pub fn width_str(&self, s: &str) -> usize {
         if self.cjk {
             UnicodeWidthStr::width(s)
         } else {
