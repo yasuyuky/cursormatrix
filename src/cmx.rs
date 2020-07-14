@@ -2,6 +2,7 @@ use crate::core::{Cursor, Matrix, TermInfo, TermiosCond, Tty};
 use crate::events::{Event, CTRL_KEY_DICT, DEFAULT_KEY_DICT, TERMINFO_KEY_DICT};
 use crossbeam;
 use libc;
+use recolored::Colorize;
 use std::collections::BTreeMap;
 use std::collections::Bound::*;
 use std::io::{stdout, Error, ErrorKind, Write};
@@ -103,6 +104,15 @@ impl Term {
         self.cursor.move_to((x + w, y))
     }
 
+    pub fn print_color(&mut self, s: &str, fg: u64, bg: u64) -> Result<(), Error> {
+        let (x, y) = self.cursor.get_pos();
+        let w = self.width_str(s);
+        let s = format!("{}", s.hex_color(fg));
+        let s = format!("{}", s.on_hex_color(bg));
+        self.cursor.print(&s)?;
+        self.cursor.move_to((x + w, y))
+    }
+
     pub fn print_to(&mut self, limit: usize, s: &str) -> Result<(), Error> {
         let (x, y) = self.cursor.get_pos();
         let mut end = x;
@@ -116,6 +126,25 @@ impl Term {
                              }
                          })
                          .collect();
+        self.cursor.print(&s)?;
+        self.cursor.move_to((end, y))
+    }
+
+    pub fn print_to_color(&mut self, limit: usize, s: &str, fg: u64, bg: u64) -> Result<(), Error> {
+        let (x, y) = self.cursor.get_pos();
+        let mut end = x;
+        let s: String = s.chars()
+                         .flat_map(|c| {
+                             end += self.width_char(c);
+                             if end < limit {
+                                 Some(c)
+                             } else {
+                                 None
+                             }
+                         })
+                         .collect();
+        let s = format!("{}", s.hex_color(fg));
+        let s = format!("{}", s.on_hex_color(bg));
         self.cursor.print(&s)?;
         self.cursor.move_to((end, y))
     }
