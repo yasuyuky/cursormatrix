@@ -13,7 +13,7 @@ impl TermiosCond {
     pub fn from_tty(tty: Tty) -> Self {
         let mut termios = Termios::from_fd(tty.as_raw_fd()).unwrap();
         let termioscond = TermiosCond { original_termios: termios,
-                                        tty: tty };
+                                        tty };
         termios.c_cflag &= !(CSIZE | PARENB);
         termios.c_cflag |= CS8;
         termios.c_lflag &= !(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ISIG | IEXTEN);
