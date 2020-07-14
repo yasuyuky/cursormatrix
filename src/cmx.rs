@@ -43,7 +43,7 @@ impl Term {
                               cursor: Cursor::new(&terminfo)?,
                               matrix: Matrix::from_tty(&tty)?,
                               terminfo,
-                              termioscond: TermiosCond::from_tty(&tty),
+                              termioscond: TermiosCond::from_tty(tty.clone()),
                               tty,
                               cjk };
         term.write_raw_command("smcup")?;

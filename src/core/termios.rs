@@ -1,18 +1,19 @@
 use crate::core::Tty;
-use std::io::stdin;
 use std::os::unix::io::AsRawFd;
 use termios::*;
 
 #[derive(Clone)]
 pub struct TermiosCond {
     original_termios: Termios,
+    tty: Tty,
 }
 
 #[allow(dead_code)]
 impl TermiosCond {
-    pub fn from_tty(tty: &Tty) -> Self {
+    pub fn from_tty(tty: Tty) -> Self {
         let mut termios = Termios::from_fd(tty.as_raw_fd()).unwrap();
-        let termioscond = TermiosCond { original_termios: termios };
+        let termioscond = TermiosCond { original_termios: termios,
+                                        tty: tty };
         termios.c_cflag &= !(CSIZE | PARENB);
         termios.c_cflag |= CS8;
         termios.c_lflag &= !(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ISIG | IEXTEN);
@@ -20,13 +21,13 @@ impl TermiosCond {
         termios.c_iflag &= !(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
         termios.c_cc[VMIN] = 0;
         termios.c_cc[VTIME] = 0;
-        tcsetattr(stdin().as_raw_fd(), TCSANOW, &termios).unwrap();
+        tcsetattr(termioscond.tty.as_raw_fd(), TCSANOW, &termios).unwrap();
         termioscond
     }
 }
 
 impl Drop for TermiosCond {
     fn drop(&mut self) {
-        tcsetattr(stdin().as_raw_fd(), TCSANOW, &self.original_termios).unwrap();
+        let _ = tcsetattr(self.tty.as_raw_fd(), TCSANOW, &self.original_termios);
     }
 }
