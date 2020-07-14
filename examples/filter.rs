@@ -82,10 +82,10 @@ impl InteractiveFilter {
                             }
                         })
                         .collect();
-        self.term.move_to((0, 0))?;
+        self.term.move_to(0, 0)?;
         self.term.print(&format!("> {}{}", self.query, blank))?;
         for l in 0..self.term.matrix.height - 1 {
-            self.term.move_to((0, l + 1))?;
+            self.term.move_to(0, l + 1)?;
             match self.view.get(l) {
                 Some((_, e)) => {
                     if l == self.line as usize {
@@ -106,7 +106,7 @@ impl InteractiveFilter {
                 },
             }
         }
-        self.term.move_to((self.term.width_str(&self.query) + 2, 0))
+        self.term.move_to(self.term.width_str(&self.query) + 2, 0)
     }
 }
 
