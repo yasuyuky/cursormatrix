@@ -19,16 +19,9 @@ mod tests {
             Ok(term) => term,
             Err(_) => return,
         };
-
         let terminfo = term.terminfo.clone();
-        let dic = term.pattern_dict.clone();
         drop(term);
-
         view_terminfo(&terminfo.info);
-
-        for (k, v) in dic {
-            println!("{:?}:{:?}", k, v);
-        }
         assert!(true)
     }
 

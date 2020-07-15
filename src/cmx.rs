@@ -21,7 +21,7 @@ static SIGWINCH_RECIEVED: AtomicBool = AtomicBool::new(false);
 #[allow(dead_code)]
 #[derive(Clone)]
 pub struct Term {
-    pub pattern_dict: BTreeMap<Vec<u8>, Event>,
+    pattern_dict: BTreeMap<Vec<u8>, Event>,
     pub cursor: Cursor,
     pub matrix: Matrix,
     pub terminfo: TermInfo,
