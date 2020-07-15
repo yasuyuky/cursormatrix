@@ -72,13 +72,8 @@ impl Term {
     }
 
     pub fn clear(&mut self) -> Result<(), std::io::Error> {
-        self.reload()?;
         self.cursor.clear()?;
         self.matrix.refresh()
-    }
-
-    pub fn reload(&mut self) -> Result<(), Error> {
-        self.check_winch()
     }
 
     pub fn width_char(&self, c: char) -> usize {
@@ -185,16 +180,6 @@ impl Term {
 
     pub fn move_bottom(&mut self) -> Result<(), Error> {
         self.move_to(self.cursor.x, self.matrix.height - 1)
-    }
-
-    fn check_winch(&mut self) -> Result<(), Error> {
-        if SIGWINCH_RECIEVED.load(Ordering::SeqCst) {
-            SIGWINCH_RECIEVED.store(false, Ordering::SeqCst);
-            let (x, y) = self.cursor.get_pos();
-            self.matrix.refresh()?;
-            self.cursor.move_to((x, y))?
-        }
-        Ok(())
     }
 
     fn write_raw_command(&mut self, command: &str) -> Result<(), Error> {

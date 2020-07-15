@@ -5,7 +5,6 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
     match ev {
         &Event::Ctrl('C') | &Event::TimeOut => return false,
         &Event::Ctrl('L') => term.clear().unwrap(),
-        &Event::Ctrl('R') => term.reload().unwrap(),
         &Event::Ctrl('A') => term.move_home().unwrap(),
         &Event::Ctrl('E') => term.move_end().unwrap(),
         &Event::Arrow(Direction::Up) => term.move_up().unwrap(),
