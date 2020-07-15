@@ -208,22 +208,22 @@ impl Term {
         stdout().flush()
     }
 
-    fn send_buffer(&mut self, btx: &Sender<u8>) -> Result<(), Error> {
+    fn send_buffer(tty: &mut Tty, btx: &Sender<u8>) -> Result<(), Error> {
         let mut buf = Vec::<u8>::new();
-        self.tty.read_to_end(&mut buf)?;
+        tty.read_to_end(&mut buf)?;
         for b in buf.iter() {
             btx.send(*b).unwrap()
         }
         Ok(buf.clear())
     }
 
-    fn loop_select(&mut self, btx: Sender<u8>, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
+    fn loop_select(tty: &mut Tty, btx: Sender<u8>, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
         let timeout = match timeout {
             None => ptr::null_mut(),
             Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,
                                              tv_usec: (to.subsec_nanos() as libc::suseconds_t) / 1000 },
         };
-        let rawfd = self.tty.as_raw_fd();
+        let rawfd = tty.as_raw_fd();
         let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
         unsafe { libc::FD_SET(rawfd, &mut readfds) };
         loop {
@@ -239,7 +239,7 @@ impl Term {
                     return Ok(etx.send(Event::TimeOut).unwrap());
                 },
                 _ => {
-                    self.send_buffer(&btx)?;
+                    Self::send_buffer(tty, &btx)?;
                 },
             }
         }
@@ -251,7 +251,8 @@ impl Term {
             let etx_clone = etx.clone();
             let dic = self.pattern_dict.clone();
             scope.spawn(move |_| Self::recieve_to_convert(&dic, brx, etx_clone));
-            self.loop_select(btx, etx, timeout)
+            let mut input_tty = self.tty.clone();
+            Self::loop_select(&mut input_tty, btx, etx, timeout)
         }).unwrap()
     }
 
