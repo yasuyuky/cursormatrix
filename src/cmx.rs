@@ -193,6 +193,18 @@ impl Term {
         stdout().flush()
     }
 
+    fn loop_check_resizing(&mut self, etx: Sender<Event>) -> Result<(), Error> {
+        loop {
+            if SIGWINCH_RECIEVED.load(Ordering::SeqCst) {
+                SIGWINCH_RECIEVED.store(false, Ordering::SeqCst);
+                self.matrix.refresh()?;
+                etx.send(Event::TermSizeChange(self.matrix.width, self.matrix.height))
+                   .unwrap()
+            }
+            thread::sleep(Duration::from_millis(100))
+        }
+    }
+
     fn send_buffer(tty: &mut Tty, btx: &Sender<u8>) -> Result<(), Error> {
         let mut buf = Vec::<u8>::new();
         tty.read_to_end(&mut buf)?;
@@ -233,11 +245,13 @@ impl Term {
     fn get_input(&mut self, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
         crossbeam::scope(|scope| {
             let (btx, brx) = channel::<u8>();
-            let etx_clone = etx.clone();
+            let etx_input = etx.clone();
+            let etx_tsize = etx.clone();
             let dic = self.pattern_dict.clone();
-            scope.spawn(move |_| Self::recieve_to_convert(&dic, brx, etx_clone));
+            scope.spawn(move |_| Self::recieve_to_convert(&dic, brx, etx_input));
             let mut input_tty = self.tty.clone();
-            Self::loop_select(&mut input_tty, btx, etx, timeout)
+            scope.spawn(move |_| Self::loop_select(&mut input_tty, btx, etx, timeout));
+            self.loop_check_resizing(etx_tsize)
         }).unwrap()
     }
 

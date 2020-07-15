@@ -20,6 +20,7 @@ pub enum Event {
     Home,
     End,
     TimeOut,
+    TermSizeChange(usize, usize),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
