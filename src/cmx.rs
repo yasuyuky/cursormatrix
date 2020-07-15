@@ -21,7 +21,6 @@ static SIGWINCH_RECIEVED: AtomicBool = AtomicBool::new(false);
 #[allow(dead_code)]
 #[derive(Clone)]
 pub struct Term {
-    pattern_dict: BTreeMap<Vec<u8>, Event>,
     pub cursor: Cursor,
     pub matrix: Matrix,
     pub terminfo: TermInfo,
@@ -40,8 +39,7 @@ impl Term {
         Self::setup_sighandler()?;
         let terminfo = TermInfo::new();
         let tty = Tty::new().expect("open tty");
-        let mut term = Term { pattern_dict: Self::create_pattern_dict(&terminfo),
-                              cursor: Cursor::new(&terminfo)?,
+        let mut term = Term { cursor: Cursor::new(&terminfo)?,
                               matrix: Matrix::from_tty(&tty)?,
                               terminfo,
                               termioscond: TermiosCond::from_tty(tty.clone()),
@@ -247,8 +245,8 @@ impl Term {
             let (btx, brx) = channel::<u8>();
             let etx_input = etx.clone();
             let etx_tsize = etx.clone();
-            let dic = self.pattern_dict.clone();
-            scope.spawn(move |_| Self::recieve_to_convert(&dic, brx, etx_input));
+            let patterns = Self::create_pattern_dict(&self.terminfo);
+            scope.spawn(move |_| Self::recieve_to_convert(&patterns, brx, etx_input));
             let mut input_tty = self.tty.clone();
             scope.spawn(move |_| Self::loop_select(&mut input_tty, btx, etx, timeout));
             self.loop_check_resizing(etx_tsize)
