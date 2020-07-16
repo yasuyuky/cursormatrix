@@ -61,12 +61,12 @@ impl Term {
         Ok(())
     }
 
-    pub fn with_input(duration: Option<Duration>, cjk: bool) -> Result<(Term, Receiver<Event>), Error> {
+    pub fn with_input(cjk: bool) -> Result<(Term, Receiver<Event>), Error> {
         let term = Self::from_cjk(cjk)?;
 
         let (etx, erx) = channel::<Event>();
         let mut t2 = term.clone();
-        thread::spawn(move || t2.get_input(etx, duration));
+        thread::spawn(move || t2.get_input(etx));
         Ok((term, erx))
     }
 
@@ -210,12 +210,9 @@ impl Term {
         Ok(buf.clear())
     }
 
-    fn loop_select(&mut self, btx: Sender<u8>, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
-        let timeout = match timeout {
-            None => ptr::null_mut(),
-            Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,
-                                             tv_usec: (to.subsec_nanos() as libc::suseconds_t) / 1000 },
-        };
+    fn loop_select(&mut self, btx: Sender<u8>, etx: Sender<Event>) -> Result<(), Error> {
+        let timeout: *mut libc::timeval = &mut libc::timeval { tv_sec: 0,
+                                                               tv_usec: 100000 };
         let rawfd = self.tty.as_raw_fd();
         let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
         loop {
@@ -235,13 +232,13 @@ impl Term {
         }
     }
 
-    fn get_input(&mut self, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
+    fn get_input(&mut self, etx: Sender<Event>) -> Result<(), Error> {
         crossbeam::scope(|scope| {
             let (btx, brx) = channel::<u8>();
             let etx_input = etx.clone();
             let patterns = Self::create_pattern_dict(&self.terminfo);
             scope.spawn(move |_| Self::recieve_to_convert(&patterns, brx, etx_input));
-            self.loop_select(btx, etx, timeout)
+            self.loop_select(btx, etx)
         }).unwrap()
     }
 

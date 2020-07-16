@@ -26,7 +26,7 @@ struct InteractiveFilter {
 
 impl InteractiveFilter {
     pub fn new(data: &[String]) -> Self {
-        let (term, erx) = Term::with_input(None, true).unwrap();
+        let (term, erx) = Term::with_input(true).unwrap();
         Self { data: data.iter().map(|s| Item::new(s)).collect(),
                view: Vec::new(),
                term,

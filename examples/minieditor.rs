@@ -1,5 +1,4 @@
 use cursormatrix::{Direction, Event, Term};
-use std::time::Duration;
 
 fn handle_event(ev: &Event, term: &mut Term) -> bool {
     match ev {
@@ -32,7 +31,7 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
 }
 
 fn main() {
-    let (mut term, erx) = Term::with_input(Some(Duration::from_secs(10)), true).expect("term");
+    let (mut term, erx) = Term::with_input(true).expect("term");
 
     term.print("edit").unwrap();
     loop {
