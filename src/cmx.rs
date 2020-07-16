@@ -87,7 +87,7 @@ impl Term {
         let (x, y) = self.cursor.get_pos();
         let w = self.width_str(s);
         self.cursor.print(s)?;
-        self.cursor.move_to((x + w, y))
+        self.cursor.move_to(x + w, y)
     }
 
     pub fn print_color(&mut self, s: &str, fg: u64, bg: u64) -> Result<(), Error> {
@@ -96,7 +96,7 @@ impl Term {
         let s = format!("{}", s.hex_color(fg));
         let s = format!("{}", s.on_hex_color(bg));
         self.cursor.print(&s)?;
-        self.cursor.move_to((x + w, y))
+        self.cursor.move_to(x + w, y)
     }
 
     pub fn print_to(&mut self, limit: usize, s: &str) -> Result<(), Error> {
@@ -113,7 +113,7 @@ impl Term {
                          })
                          .collect();
         self.cursor.print(&s)?;
-        self.cursor.move_to((end, y))
+        self.cursor.move_to(end, y)
     }
 
     pub fn print_to_color(&mut self, limit: usize, s: &str, fg: u64, bg: u64) -> Result<(), Error> {
@@ -132,13 +132,13 @@ impl Term {
         let s = format!("{}", s.hex_color(fg));
         let s = format!("{}", s.on_hex_color(bg));
         self.cursor.print(&s)?;
-        self.cursor.move_to((end, y))
+        self.cursor.move_to(end, y)
     }
 
     pub fn move_to(&mut self, x: usize, y: usize) -> Result<(), Error> {
         let x = std::cmp::min(x, self.matrix.width - 1);
         let y = std::cmp::min(y, self.matrix.height - 1);
-        self.cursor.move_to((x, y))
+        self.cursor.move_to(x, y)
     }
 
     pub fn move_up(&mut self) -> Result<(), Error> {

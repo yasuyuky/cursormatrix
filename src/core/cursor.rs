@@ -43,7 +43,7 @@ impl Cursor {
     }
 
     pub fn clear(&mut self) -> Result<(), Error> {
-        self.move_to((0, 0))?;
+        self.move_to(0, 0)?;
         Self::write_raw_command(&self.commands.clear)
     }
 
@@ -56,7 +56,7 @@ impl Cursor {
         (self.x, self.y)
     }
 
-    pub fn move_to(&mut self, (x, y): (usize, usize)) -> Result<(), Error> {
+    pub fn move_to(&mut self, x: usize, y: usize) -> Result<(), Error> {
         self.x = x;
         self.y = y;
         Self::write_command_with_args(&self.commands.address, &[self.y, self.x])
