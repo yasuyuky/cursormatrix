@@ -19,13 +19,11 @@ use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 static SIGWINCH_RECIEVED: AtomicBool = AtomicBool::new(false);
 
 #[allow(dead_code)]
-#[derive(Clone)]
 pub struct Term {
     pub cursor: Cursor,
     pub matrix: Matrix,
     pub terminfo: TermInfo,
     termioscond: TermiosCond,
-    tty: Tty,
     cjk: bool,
 }
 
@@ -43,8 +41,7 @@ impl Term {
         let mut term = Term { cursor: Cursor::new(&terminfo)?,
                               matrix: Matrix::new(w, h),
                               terminfo,
-                              termioscond: TermiosCond::from_tty(tty.clone()),
-                              tty,
+                              termioscond: TermiosCond::from_tty(tty),
                               cjk };
         term.write_raw_command("smcup")?;
         term.cursor.clear()?;
@@ -64,9 +61,9 @@ impl Term {
     pub fn with_input(cjk: bool) -> Result<(Term, Receiver<Event>), Error> {
         let term = Self::from_cjk(cjk)?;
 
+        let patterns = Self::create_pattern_dict(&term.terminfo);
         let (etx, erx) = channel::<Event>();
-        let mut t2 = term.clone();
-        thread::spawn(move || t2.get_input(etx));
+        thread::spawn(move || Self::get_input(patterns, etx));
         Ok((term, erx))
     }
 
@@ -231,13 +228,13 @@ impl Term {
         }
     }
 
-    fn get_input(&mut self, etx: Sender<Event>) -> Result<(), Error> {
+    fn get_input(patterns: BTreeMap<Vec<u8>, Event>, etx: Sender<Event>) -> Result<(), Error> {
         crossbeam::scope(|scope| {
             let (btx, brx) = channel::<u8>();
             let etx_input = etx.clone();
-            let patterns = Self::create_pattern_dict(&self.terminfo);
             scope.spawn(move |_| Self::recieve_to_convert(&patterns, brx, etx_input));
-            Self::loop_select(&mut self.tty, btx, etx)
+            let mut tty = Tty::new()?;
+            Self::loop_select(&mut tty, btx, etx)
         }).unwrap()
     }
 

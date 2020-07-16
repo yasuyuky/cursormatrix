@@ -2,7 +2,6 @@ use crate::core::Tty;
 use std::os::unix::io::AsRawFd;
 use termios::*;
 
-#[derive(Clone)]
 pub struct TermiosCond {
     original_termios: Termios,
     tty: Tty,

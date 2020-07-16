@@ -19,12 +19,6 @@ impl Tty {
     }
 }
 
-impl Clone for Tty {
-    fn clone(&self) -> Self {
-        Tty { file: OpenOptions::new().write(true).read(true).open("/dev/tty").unwrap() }
-    }
-}
-
 impl AsRawFd for Tty {
     fn as_raw_fd(&self) -> RawFd {
         self.file.as_raw_fd()
