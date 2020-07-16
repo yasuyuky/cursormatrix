@@ -48,6 +48,7 @@ impl InteractiveFilter {
         loop {
             let height = std::cmp::min(self.view.len(), self.term.matrix.height - 1);
             match self.erx.recv() {
+                Ok(Event::TermSize(w, h)) => self.term.matrix.refresh(w, h),
                 Ok(Event::Ctrl('C')) => break,
                 Ok(Event::Tab) => self.select_line(),
                 Ok(Event::Arrow(Direction::Up)) => self.line = std::cmp::max(self.line - 1, 0),

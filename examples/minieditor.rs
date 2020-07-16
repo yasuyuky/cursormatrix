@@ -22,6 +22,7 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
             use unicode_normalization::UnicodeNormalization;
             term.print(&format!("{}", s.nfkc().collect::<String>())).unwrap();
         },
+        &Event::TermSize(w, h) => term.matrix.refresh(w, h),
         e => {
             let pos = term.cursor.get_pos();
             term.print(format!("e: {:?}, pos{:?}", e, pos).as_str()).unwrap();
