@@ -39,8 +39,9 @@ impl Term {
         Self::setup_sighandler()?;
         let terminfo = TermInfo::new();
         let tty = Tty::new().expect("open tty");
+        let (w, h) = Self::load_winsize(&tty)?;
         let mut term = Term { cursor: Cursor::new(&terminfo)?,
-                              matrix: Matrix::from_tty(&tty)?,
+                              matrix: Matrix::new(w, h),
                               terminfo,
                               termioscond: TermiosCond::from_tty(tty.clone()),
                               tty,
@@ -70,8 +71,7 @@ impl Term {
     }
 
     pub fn clear(&mut self) -> Result<(), std::io::Error> {
-        self.cursor.clear()?;
-        self.matrix.refresh()
+        self.cursor.clear()
     }
 
     pub fn width_char(&self, c: char) -> usize {
@@ -195,9 +195,9 @@ impl Term {
         loop {
             if SIGWINCH_RECIEVED.load(Ordering::SeqCst) {
                 SIGWINCH_RECIEVED.store(false, Ordering::SeqCst);
-                self.matrix.refresh()?;
-                etx.send(Event::TermSizeChange(self.matrix.width, self.matrix.height))
-                   .unwrap()
+                let (w, h) = Self::load_winsize(&self.tty)?;
+                self.matrix.refresh(w, h);
+                etx.send(Event::TermSizeChange(w, h)).unwrap()
             }
             thread::sleep(Duration::from_millis(100))
         }
@@ -325,6 +325,15 @@ impl Term {
             Ok(ref s) => Ok(Event::Chars(s.clone())),
             Err(e) => Err(e),
         }
+    }
+
+    fn load_winsize(tty: &Tty) -> Result<(usize, usize), Error> {
+        let mut ws: libc::winsize = unsafe { mem::MaybeUninit::uninit().assume_init() };
+        let res = unsafe { libc::ioctl(tty.as_raw_fd(), libc::TIOCGWINSZ, &mut ws) };
+        if res != 0 {
+            return Err(Error::last_os_error());
+        }
+        Ok((ws.ws_col as usize, ws.ws_row as usize))
     }
 }
 
