@@ -191,16 +191,14 @@ impl Term {
         stdout().flush()
     }
 
-    fn loop_check_resizing(&mut self, etx: Sender<Event>) -> Result<(), Error> {
-        loop {
-            if SIGWINCH_RECIEVED.load(Ordering::SeqCst) {
-                SIGWINCH_RECIEVED.store(false, Ordering::SeqCst);
-                let (w, h) = Self::load_winsize(&self.tty)?;
-                self.matrix.refresh(w, h);
-                etx.send(Event::TermSizeChange(w, h)).unwrap()
-            }
-            thread::sleep(Duration::from_millis(100))
+    fn check_resizing(&mut self, etx: &Sender<Event>) -> Result<(), Error> {
+        if SIGWINCH_RECIEVED.load(Ordering::SeqCst) {
+            SIGWINCH_RECIEVED.store(false, Ordering::SeqCst);
+            let (w, h) = Self::load_winsize(&self.tty)?;
+            self.matrix.refresh(w, h);
+            etx.send(Event::TermSizeChange(w, h)).unwrap()
         }
+        Ok(())
     }
 
     fn send_buffer(tty: &mut Tty, btx: &Sender<u8>) -> Result<(), Error> {
@@ -212,16 +210,17 @@ impl Term {
         Ok(buf.clear())
     }
 
-    fn loop_select(tty: &mut Tty, btx: Sender<u8>, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
+    fn loop_select(&mut self, btx: Sender<u8>, etx: Sender<Event>, timeout: Option<Duration>) -> Result<(), Error> {
         let timeout = match timeout {
             None => ptr::null_mut(),
             Some(to) => &mut libc::timeval { tv_sec: to.as_secs() as libc::time_t,
                                              tv_usec: (to.subsec_nanos() as libc::suseconds_t) / 1000 },
         };
-        let rawfd = tty.as_raw_fd();
+        let rawfd = self.tty.as_raw_fd();
         let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
-        unsafe { libc::FD_SET(rawfd, &mut readfds) };
         loop {
+            self.check_resizing(&etx)?;
+            unsafe { libc::FD_SET(rawfd, &mut readfds) };
             match unsafe { libc::select(rawfd + 1, &mut readfds, ptr::null_mut(), ptr::null_mut(), timeout) } {
                 -1 => {
                     let err = Error::last_os_error();
@@ -230,12 +229,8 @@ impl Term {
                         _ => return Err(err),
                     }
                 },
-                0 => {
-                    return Ok(etx.send(Event::TimeOut).unwrap());
-                },
-                _ => {
-                    Self::send_buffer(tty, &btx)?;
-                },
+                0 => continue,
+                _ => Self::send_buffer(&mut self.tty, &btx)?,
             }
         }
     }
@@ -244,12 +239,9 @@ impl Term {
         crossbeam::scope(|scope| {
             let (btx, brx) = channel::<u8>();
             let etx_input = etx.clone();
-            let etx_tsize = etx.clone();
             let patterns = Self::create_pattern_dict(&self.terminfo);
             scope.spawn(move |_| Self::recieve_to_convert(&patterns, brx, etx_input));
-            let mut input_tty = self.tty.clone();
-            scope.spawn(move |_| Self::loop_select(&mut input_tty, btx, etx, timeout));
-            self.loop_check_resizing(etx_tsize)
+            self.loop_select(btx, etx, timeout)
         }).unwrap()
     }
 
