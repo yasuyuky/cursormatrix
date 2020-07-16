@@ -191,12 +191,11 @@ impl Term {
         stdout().flush()
     }
 
-    fn check_resizing(&mut self, etx: &Sender<Event>) -> Result<(), Error> {
+    fn check_resizing(tty: &mut Tty, etx: &Sender<Event>) -> Result<(), Error> {
         if SIGWINCH_RECIEVED.load(Ordering::SeqCst) {
             SIGWINCH_RECIEVED.store(false, Ordering::SeqCst);
-            let (w, h) = Self::load_winsize(&self.tty)?;
-            self.matrix.refresh(w, h);
-            etx.send(Event::TermSizeChange(w, h)).unwrap()
+            let (w, h) = Self::load_winsize(tty)?;
+            etx.send(Event::TermSize(w, h)).unwrap()
         }
         Ok(())
     }
@@ -210,13 +209,13 @@ impl Term {
         Ok(buf.clear())
     }
 
-    fn loop_select(&mut self, btx: Sender<u8>, etx: Sender<Event>) -> Result<(), Error> {
+    fn loop_select(tty: &mut Tty, btx: Sender<u8>, etx: Sender<Event>) -> Result<(), Error> {
         let timeout: *mut libc::timeval = &mut libc::timeval { tv_sec: 0,
                                                                tv_usec: 100000 };
-        let rawfd = self.tty.as_raw_fd();
+        let rawfd = tty.as_raw_fd();
         let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
         loop {
-            self.check_resizing(&etx)?;
+            Self::check_resizing(tty, &etx)?;
             unsafe { libc::FD_SET(rawfd, &mut readfds) };
             match unsafe { libc::select(rawfd + 1, &mut readfds, ptr::null_mut(), ptr::null_mut(), timeout) } {
                 -1 => {
@@ -227,7 +226,7 @@ impl Term {
                     }
                 },
                 0 => continue,
-                _ => Self::send_buffer(&mut self.tty, &btx)?,
+                _ => Self::send_buffer(tty, &btx)?,
             }
         }
     }
@@ -238,7 +237,7 @@ impl Term {
             let etx_input = etx.clone();
             let patterns = Self::create_pattern_dict(&self.terminfo);
             scope.spawn(move |_| Self::recieve_to_convert(&patterns, brx, etx_input));
-            self.loop_select(btx, etx)
+            Self::loop_select(&mut self.tty, btx, etx)
         }).unwrap()
     }
 
