@@ -29,11 +29,7 @@ pub struct Term {
 
 #[allow(dead_code)]
 impl Term {
-    pub fn new() -> Result<Term, Error> {
-        Self::from_cjk(true)
-    }
-
-    pub fn from_cjk(cjk: bool) -> Result<Term, Error> {
+    pub fn from_cjk(cjk: bool) -> Result<Self, Error> {
         Self::setup_sighandler()?;
         let terminfo = TermInfo::new();
         let tty = Tty::new().expect("open tty");
@@ -58,7 +54,7 @@ impl Term {
         Ok(())
     }
 
-    pub fn with_input(cjk: bool) -> Result<(Term, Receiver<Event>), Error> {
+    pub fn with_input(cjk: bool) -> Result<(Self, Receiver<Event>), Error> {
         let term = Self::from_cjk(cjk)?;
 
         let patterns = Self::create_pattern_dict(&term.terminfo);

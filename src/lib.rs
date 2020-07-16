@@ -15,7 +15,7 @@ mod tests {
 
     #[test]
     fn test_show_info() {
-        let term = match Term::new() {
+        let term = match Term::from_cjk(true) {
             Ok(term) => term,
             Err(_) => return,
         };
