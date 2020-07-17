@@ -73,15 +73,10 @@ impl InteractiveFilter {
         let width = self.term.matrix.width;
         let blank = " ".repeat(width);
         self.view = self.data
-                        .iter()
+                        .clone()
+                        .into_iter()
                         .enumerate()
-                        .flat_map(|(i, e)| {
-                            if e.data.find(&self.query).is_some() {
-                                Some((i, e.clone()))
-                            } else {
-                                None
-                            }
-                        })
+                        .filter(|(_, e)| e.data.find(&self.query).is_some())
                         .collect();
         self.term.xlimit = Some(width);
         self.term.bg.push((33, 33, 33));
