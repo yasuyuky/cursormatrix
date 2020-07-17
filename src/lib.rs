@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate lazy_static;
 
-mod cmx;
 mod core;
 mod events;
-pub use cmx::Term;
+mod terminal;
 pub use events::{Direction, Event};
+pub use terminal::Term;
 
 #[cfg(test)]
 mod tests {
