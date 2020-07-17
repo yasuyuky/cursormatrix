@@ -78,6 +78,7 @@ impl InteractiveFilter {
                         .enumerate()
                         .filter(|(_, e)| e.data.find(&self.query).is_some())
                         .collect();
+        self.term.cursor.hide()?;
         self.term.xlimit = Some(width);
         self.term.bg.push((33, 33, 33));
         self.term.move_to(0, 0)?;
@@ -96,7 +97,8 @@ impl InteractiveFilter {
                 None => self.term.print(&blank)?,
             }
         }
-        self.term.move_to(self.term.width_str(&self.query) + 2, 0)
+        self.term.move_to(self.term.width_str(&self.query) + 2, 0)?;
+        self.term.cursor.show()
     }
 }
 
