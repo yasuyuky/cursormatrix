@@ -1,8 +1,8 @@
 use crate::core::{Cursor, Matrix, TermInfo, TermiosCond, Tty};
 use crate::events::{Event, CTRL_KEY_DICT, DEFAULT_KEY_DICT, TERMINFO_KEY_DICT};
+use colored::Colorize;
 use crossbeam;
 use libc;
-use recolored::Colorize;
 use std::collections::BTreeMap;
 use std::collections::Bound::*;
 use std::io::{stdout, Error, ErrorKind, Write};
@@ -107,10 +107,10 @@ impl Term {
             None => (String::from(s), self.width_str(s)),
         };
         if let Some((r, g, b)) = self.bg.last() {
-            s = format!("{}", s.on_true_color(*r, *g, *b));
+            s = format!("{}", s.on_truecolor(*r, *g, *b));
         }
         if let Some((r, g, b)) = self.fg.last() {
-            s = format!("{}", s.true_color(*r, *g, *b));
+            s = format!("{}", s.truecolor(*r, *g, *b));
         }
         self.cursor.print(&s)?;
         self.cursor.move_to(x + w, y)
