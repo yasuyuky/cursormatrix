@@ -24,6 +24,8 @@ pub struct Term {
     pub matrix: Matrix,
     pub terminfo: TermInfo,
     pub xlimit: Option<usize>,
+    pub fg: Vec<(u8, u8, u8)>,
+    pub bg: Vec<(u8, u8, u8)>,
     termioscond: TermiosCond,
     cjk: bool,
 }
@@ -39,6 +41,8 @@ impl Term {
                               matrix: Matrix::new(w, h),
                               terminfo,
                               xlimit: None,
+                              fg: Vec::new(),
+                              bg: Vec::new(),
                               termioscond: TermiosCond::from_tty(tty),
                               cjk };
         term.write_raw_command("smcup")?;
@@ -98,24 +102,27 @@ impl Term {
 
     pub fn print(&mut self, s: &str) -> Result<(), Error> {
         let (x, y) = self.cursor.get_pos();
-        let (s, w) = match self.xlimit {
+        let (mut s, w) = match self.xlimit {
             Some(limit) => self.limit_string(s, std::cmp::max(limit as isize - x as isize, 0) as usize),
             None => (String::from(s), self.width_str(s)),
         };
+        if let Some((r, g, b)) = self.bg.last() {
+            s = format!("{}", s.on_true_color(*r, *g, *b));
+        }
+        if let Some((r, g, b)) = self.fg.last() {
+            s = format!("{}", s.true_color(*r, *g, *b));
+        }
         self.cursor.print(&s)?;
         self.cursor.move_to(x + w, y)
     }
 
-    pub fn print_color(&mut self, s: &str, fg: u64, bg: u64) -> Result<(), Error> {
-        let (x, y) = self.cursor.get_pos();
-        let (s, w) = match self.xlimit {
-            Some(limit) => self.limit_string(s, std::cmp::max(limit as isize - x as isize, 0) as usize),
-            None => (String::from(s), self.width_str(s)),
-        };
-        let s = format!("{}", s.hex_color(fg));
-        let s = format!("{}", s.on_hex_color(bg));
-        self.cursor.print(&s)?;
-        self.cursor.move_to(x + w, y)
+    pub fn cprint(&mut self, s: &str, fg: Option<(u8, u8, u8)>, bg: Option<(u8, u8, u8)>) -> Result<(), Error> {
+        bg.and_then(|c| Some(self.bg.push(c)));
+        fg.and_then(|c| Some(self.fg.push(c)));
+        self.print(s)?;
+        fg.and_then(|_| self.fg.pop());
+        bg.and_then(|_| self.bg.pop());
+        Ok(())
     }
 
     pub fn move_to(&mut self, x: usize, y: usize) -> Result<(), Error> {

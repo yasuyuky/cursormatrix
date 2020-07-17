@@ -84,27 +84,21 @@ impl InteractiveFilter {
                         })
                         .collect();
         self.term.xlimit = Some(width);
+        self.term.bg.push((33, 33, 33));
         self.term.move_to(0, 0)?;
         self.term.print(&format!("> {}{}", self.query, blank))?;
         for l in 0..self.term.matrix.height - 1 {
             self.term.move_to(0, l + 1)?;
             match self.view.get(l) {
                 Some((_, e)) => {
-                    if l == self.line as usize {
-                        self.term.print_color(&format!("{}{}", e.data, blank),
-                                               0xffffff,
-                                               if e.selected { 0x9acd32 } else { 0x008080 })?;
+                    let bg = if l == self.line as usize {
+                        Some(if e.selected { (154, 205, 50) } else { (0, 128, 128) })
                     } else {
-                        if e.selected {
-                            self.term
-                                .print_color(&format!("{}{}", e.data, blank), 0xffffff, 0xff6347)?;
-                        }
-                        self.term.print(&format!("{}{}", e.data, blank))?;
-                    }
+                        Some(if e.selected { Some((255, 99, 71)) } else { None }).flatten()
+                    };
+                    self.term.cprint(&format!("{}{}", e.data, blank), None, bg)?
                 },
-                None => {
-                    self.term.print(&blank)?;
-                },
+                None => self.term.print(&blank)?,
             }
         }
         self.term.move_to(self.term.width_str(&self.query) + 2, 0)
