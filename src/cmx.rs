@@ -83,6 +83,17 @@ impl Term {
         }
     }
 
+    fn limit_string(&self, s: &str, limit: usize) -> (String, usize) {
+        let mut w = 0;
+        (s.chars()
+          .take_while(|c| {
+              w += self.width_char(*c);
+              w <= limit
+          })
+          .collect(),
+         w)
+    }
+
     pub fn print(&mut self, s: &str) -> Result<(), Error> {
         let (x, y) = self.cursor.get_pos();
         let w = self.width_str(s);
@@ -101,38 +112,18 @@ impl Term {
 
     pub fn print_to(&mut self, limit: usize, s: &str) -> Result<(), Error> {
         let (x, y) = self.cursor.get_pos();
-        let mut end = x;
-        let s: String = s.chars()
-                         .flat_map(|c| {
-                             end += self.width_char(c);
-                             if end < limit {
-                                 Some(c)
-                             } else {
-                                 None
-                             }
-                         })
-                         .collect();
+        let (s, w) = self.limit_string(s, std::cmp::max(limit as isize - x as isize, 0) as usize);
         self.cursor.print(&s)?;
-        self.cursor.move_to(end, y)
+        self.cursor.move_to(x + w, y)
     }
 
     pub fn print_to_color(&mut self, limit: usize, s: &str, fg: u64, bg: u64) -> Result<(), Error> {
         let (x, y) = self.cursor.get_pos();
-        let mut end = x;
-        let s: String = s.chars()
-                         .flat_map(|c| {
-                             end += self.width_char(c);
-                             if end < limit {
-                                 Some(c)
-                             } else {
-                                 None
-                             }
-                         })
-                         .collect();
+        let (s, w) = self.limit_string(s, std::cmp::max(limit as isize - x as isize, 0) as usize);
         let s = format!("{}", s.hex_color(fg));
         let s = format!("{}", s.on_hex_color(bg));
         self.cursor.print(&s)?;
-        self.cursor.move_to(end, y)
+        self.cursor.move_to(x + w, y)
     }
 
     pub fn move_to(&mut self, x: usize, y: usize) -> Result<(), Error> {
