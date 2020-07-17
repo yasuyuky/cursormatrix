@@ -23,6 +23,7 @@ pub struct Term {
     pub cursor: Cursor,
     pub matrix: Matrix,
     pub terminfo: TermInfo,
+    pub xlimit: Option<usize>,
     termioscond: TermiosCond,
     cjk: bool,
 }
@@ -37,6 +38,7 @@ impl Term {
         let mut term = Term { cursor: Cursor::new(&terminfo)?,
                               matrix: Matrix::new(w, h),
                               terminfo,
+                              xlimit: None,
                               termioscond: TermiosCond::from_tty(tty),
                               cjk };
         term.write_raw_command("smcup")?;
@@ -96,30 +98,20 @@ impl Term {
 
     pub fn print(&mut self, s: &str) -> Result<(), Error> {
         let (x, y) = self.cursor.get_pos();
-        let w = self.width_str(s);
-        self.cursor.print(s)?;
+        let (s, w) = match self.xlimit {
+            Some(limit) => self.limit_string(s, std::cmp::max(limit as isize - x as isize, 0) as usize),
+            None => (String::from(s), self.width_str(s)),
+        };
+        self.cursor.print(&s)?;
         self.cursor.move_to(x + w, y)
     }
 
     pub fn print_color(&mut self, s: &str, fg: u64, bg: u64) -> Result<(), Error> {
         let (x, y) = self.cursor.get_pos();
-        let w = self.width_str(s);
-        let s = format!("{}", s.hex_color(fg));
-        let s = format!("{}", s.on_hex_color(bg));
-        self.cursor.print(&s)?;
-        self.cursor.move_to(x + w, y)
-    }
-
-    pub fn print_to(&mut self, limit: usize, s: &str) -> Result<(), Error> {
-        let (x, y) = self.cursor.get_pos();
-        let (s, w) = self.limit_string(s, std::cmp::max(limit as isize - x as isize, 0) as usize);
-        self.cursor.print(&s)?;
-        self.cursor.move_to(x + w, y)
-    }
-
-    pub fn print_to_color(&mut self, limit: usize, s: &str, fg: u64, bg: u64) -> Result<(), Error> {
-        let (x, y) = self.cursor.get_pos();
-        let (s, w) = self.limit_string(s, std::cmp::max(limit as isize - x as isize, 0) as usize);
+        let (s, w) = match self.xlimit {
+            Some(limit) => self.limit_string(s, std::cmp::max(limit as isize - x as isize, 0) as usize),
+            None => (String::from(s), self.width_str(s)),
+        };
         let s = format!("{}", s.hex_color(fg));
         let s = format!("{}", s.on_hex_color(bg));
         self.cursor.print(&s)?;
