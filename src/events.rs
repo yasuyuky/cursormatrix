@@ -69,19 +69,19 @@ lazy_static! {
                                                                 .collect()
     };
     pub static ref DEFAULT_KEY_DICT: BTreeMap<Vec<u8>, Event> = {
-        [("\u{1b}[A", Event::Raw(Input::Arrow(Direction::Up))),
-         ("\u{1b}[B", Event::Raw(Input::Arrow(Direction::Down))),
-         ("\u{1b}[D", Event::Raw(Input::Arrow(Direction::Left))),
-         ("\u{1b}[C", Event::Raw(Input::Arrow(Direction::Right))),
-         ("\u{1b}[H", Event::Raw(Input::Home)),
-         ("\u{1b}[F", Event::Raw(Input::End)),
-         ("\u{08}", Event::Raw(Input::BackSpace)),
-         ("\t", Event::Raw(Input::Tab)),
-         ("\n", Event::Raw(Input::Enter)),
-         ("\r", Event::Raw(Input::Return)),
-         ("\u{1b}", Event::Raw(Input::Escape)),
-         ("\u{7f}", Event::Raw(Input::Delete))].iter()
-                                               .map(|&(k, ref v)| (k.chars().map(|c| c as u8).collect(), v.clone()))
-                                               .collect()
+        [("\u{1b}[A", Input::Arrow(Direction::Up)),
+         ("\u{1b}[B", Input::Arrow(Direction::Down)),
+         ("\u{1b}[D", Input::Arrow(Direction::Left)),
+         ("\u{1b}[C", Input::Arrow(Direction::Right)),
+         ("\u{1b}[H", Input::Home),
+         ("\u{1b}[F", Input::End),
+         ("\u{08}", Input::BackSpace),
+         ("\t", Input::Tab),
+         ("\n", Input::Enter),
+         ("\r", Input::Return),
+         ("\u{1b}", Input::Escape),
+         ("\u{7f}", Input::Delete)].iter()
+                                   .map(|(k, v)| (k.chars().map(|c| c as u8).collect(), Event::Raw(v.clone())))
+                                   .collect()
     };
 }
