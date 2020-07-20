@@ -81,7 +81,12 @@ lazy_static! {
          ("\r", Input::Return),
          ("\u{1b}", Input::Escape),
          ("\u{7f}", Input::Delete)].iter()
-                                   .map(|(k, v)| (k.chars().map(|c| c as u8).collect(), Event::Raw(v.clone())))
+                                   .map(|(k, v)| {
+                                       vec![(k.chars().map(|c| c as u8).collect(), Event::Raw(v.clone())),
+                                            ((String::from("\u{1b}") + k).chars().map(|c| c as u8).collect(),
+                                             Event::Meta(v.clone())),]
+                                   })
+                                   .flatten()
                                    .collect()
     };
 }
