@@ -7,6 +7,7 @@ use std::str::FromStr;
 pub enum Event {
     Raw(Input),
     Ctrl(Input),
+    Meta(Input),
     TimeOut,
     TermSize(usize, usize),
 }
@@ -41,6 +42,9 @@ lazy_static! {
     pub static ref CTRL_KEY_DICT: BTreeMap<Vec<u8>, Event> =
         (0u8..32).map(|x| (vec![x], Event::Ctrl(Input::Chars(((x + 64) as char).to_string()))))
                  .collect();
+    pub static ref META_KEY_DICT: BTreeMap<Vec<u8>, Event> =
+        (32u8..128).map(|x| (vec![0x1b, x], Event::Meta(Input::Chars((x as char).to_string()))))
+                   .collect();
     pub static ref TERMINFO_KEY_DICT: BTreeMap<String, Event> = {
         [("kcuu1", Event::Raw(Input::Arrow(Direction::Up))),
          ("kcud1", Event::Raw(Input::Arrow(Direction::Down))),

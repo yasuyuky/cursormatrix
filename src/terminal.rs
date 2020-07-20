@@ -1,5 +1,5 @@
 use crate::core::{Cursor, Matrix, TermInfo, TermiosCond, Tty};
-use crate::events::{Event, Input, CTRL_KEY_DICT, DEFAULT_KEY_DICT, TERMINFO_KEY_DICT};
+use crate::events::{Event, Input, CTRL_KEY_DICT, DEFAULT_KEY_DICT, META_KEY_DICT, TERMINFO_KEY_DICT};
 use colored::Colorize;
 use crossbeam;
 use libc;
@@ -281,10 +281,11 @@ impl Term {
                                         None => None,
                                     })
                                     .collect::<BTreeMap<Vec<u8>, Event>>();
-        CTRL_KEY_DICT.clone()
-                     .into_iter()
-                     .chain(DEFAULT_KEY_DICT.clone().into_iter())
-                     .chain(terminfo_dict.into_iter())
+        CTRL_KEY_DICT.iter()
+                     .chain(META_KEY_DICT.iter())
+                     .chain(DEFAULT_KEY_DICT.iter())
+                     .chain(terminfo_dict.iter())
+                     .map(|(k, v)| (k.clone(), v.clone()))
                      .collect()
     }
 
