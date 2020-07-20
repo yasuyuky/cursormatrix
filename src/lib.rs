@@ -4,7 +4,7 @@ extern crate lazy_static;
 mod core;
 mod events;
 mod terminal;
-pub use events::{Direction, Event};
+pub use events::{Direction, Event, Input};
 pub use terminal::Term;
 
 #[cfg(test)]

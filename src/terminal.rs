@@ -1,5 +1,5 @@
 use crate::core::{Cursor, Matrix, TermInfo, TermiosCond, Tty};
-use crate::events::{Event, CTRL_KEY_DICT, DEFAULT_KEY_DICT, TERMINFO_KEY_DICT};
+use crate::events::{Event, Input, CTRL_KEY_DICT, DEFAULT_KEY_DICT, TERMINFO_KEY_DICT};
 use colored::Colorize;
 use crossbeam;
 use libc;
@@ -294,6 +294,7 @@ impl Term {
         };
         match String::from_utf8(buf.to_owned()) {
             Ok(ref s) => Ok(Event::Chars(s.clone())),
+            Ok(ref s) => Ok(Event::Raw(Input::Chars(s.clone()))),
             Err(e) => Err(e),
         }
     }
