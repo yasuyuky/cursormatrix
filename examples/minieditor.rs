@@ -1,27 +1,27 @@
-use cursormatrix::{Direction, Event, Term};
+use cursormatrix::{Direction, Event, Input, Term};
 
 fn handle_event(ev: &Event, term: &mut Term) -> bool {
     match ev {
-        &Event::Ctrl('C') | &Event::TimeOut => return false,
-        &Event::Ctrl('L') => term.clear().unwrap(),
-        &Event::Ctrl('A') => term.move_home().unwrap(),
-        &Event::Ctrl('E') => term.move_end().unwrap(),
-        &Event::Arrow(Direction::Up) => term.move_up().unwrap(),
-        &Event::Arrow(Direction::Down) => term.move_down().unwrap(),
-        &Event::Arrow(Direction::Left) => term.move_left().unwrap(),
-        &Event::Arrow(Direction::Right) => term.move_right().unwrap(),
-        &Event::Ctrl('D') => term.cursor.delete_char().unwrap(),
-        &Event::Return => {
+        &Event::Ctrl(Input::Chars(ref s)) => match s.as_str() {
+            "C" => return false,
+            "L" => term.clear().unwrap(),
+            "A" => term.move_home().unwrap(),
+            "E" => term.move_end().unwrap(),
+            "D" => term.cursor.delete_char().unwrap(),
+            k => term.print(&format!("Ctrl+{}", k)).unwrap(),
+        },
+        &Event::Raw(Input::Arrow(Direction::Up)) => term.move_up().unwrap(),
+        &Event::Raw(Input::Arrow(Direction::Down)) => term.move_down().unwrap(),
+        &Event::Raw(Input::Arrow(Direction::Left)) => term.move_left().unwrap(),
+        &Event::Raw(Input::Arrow(Direction::Right)) => term.move_right().unwrap(),
+        &Event::Raw(Input::Return) => {
             term.print("↩︎").unwrap();
             term.move_home().unwrap();
             term.move_down().unwrap();
         },
-        &Event::Delete => term.cursor.backspace().unwrap(),
-        &Event::BackSpace => term.cursor.backspace().unwrap(),
-        &Event::Chars(ref s) => {
-            use unicode_normalization::UnicodeNormalization;
-            term.print(&format!("{}", s.nfkc().collect::<String>())).unwrap();
-        },
+        &Event::Raw(Input::Delete) => term.cursor.backspace().unwrap(),
+        &Event::Raw(Input::BackSpace) => term.cursor.backspace().unwrap(),
+        &Event::Raw(Input::Chars(ref s)) => term.print(s).unwrap(),
         &Event::TermSize(w, h) => term.matrix.refresh(w, h),
         e => {
             let pos = term.cursor.get_pos();
