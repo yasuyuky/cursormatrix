@@ -293,7 +293,6 @@ impl Term {
             return Ok(e.clone());
         };
         match String::from_utf8(buf.to_owned()) {
-            Ok(ref s) => Ok(Event::Chars(s.clone())),
             Ok(ref s) => Ok(Event::Raw(Input::Chars(s.clone()))),
             Err(e) => Err(e),
         }
