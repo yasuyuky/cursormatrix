@@ -1,4 +1,4 @@
-use cursormatrix::{Direction, Event, Term};
+use cursormatrix::{Direction, Event, Input, Term};
 use std::io::{self, Read};
 use std::sync::mpsc::Receiver;
 
@@ -49,12 +49,17 @@ impl InteractiveFilter {
             let height = std::cmp::min(self.view.len(), self.term.matrix.height - 1);
             match self.erx.recv() {
                 Ok(Event::TermSize(w, h)) => self.term.matrix.refresh(w, h),
-                Ok(Event::Ctrl('C')) => break,
-                Ok(Event::Tab) => self.select_line(),
-                Ok(Event::Arrow(Direction::Up)) => self.line = std::cmp::max(self.line - 1, 0),
-                Ok(Event::Arrow(Direction::Down)) => self.line = std::cmp::min(self.line + 1, height as isize - 1),
-                Ok(Event::Chars(ref s)) => self.query.push_str(s),
-                Ok(Event::BackSpace) | Ok(Event::Delete) => {
+                Ok(Event::Ctrl(Input::Chars(s))) => match s.as_str() {
+                    "C" => break,
+                    _ => continue,
+                },
+                Ok(Event::Raw(Input::Tab)) => self.select_line(),
+                Ok(Event::Raw(Input::Arrow(Direction::Up))) => self.line = std::cmp::max(self.line - 1, 0),
+                Ok(Event::Raw(Input::Arrow(Direction::Down))) => {
+                    self.line = std::cmp::min(self.line + 1, height as isize - 1)
+                },
+                Ok(Event::Raw(Input::Chars(ref s))) => self.query.push_str(s),
+                Ok(Event::Raw(Input::BackSpace)) | Ok(Event::Raw(Input::Delete)) => {
                     self.query.pop().unwrap_or_default();
                 },
                 _ => continue,
