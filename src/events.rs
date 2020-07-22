@@ -55,7 +55,7 @@ lazy_static! {
          ("tab", Event::Raw(Input::Tab)),
          ("cr", Event::Raw(Input::Return)),
          ("khome", Event::Raw(Input::Home)),
-         ("key_end", Event::Raw(Input::End)),
+         ("kend", Event::Raw(Input::End)),
          ("kpp", Event::Raw(Input::Page(Direction::Up))),
          ("knp", Event::Raw(Input::Page(Direction::Down))),
          ("key_sr", Event::Raw(Input::Scroll(Direction::Up))),
