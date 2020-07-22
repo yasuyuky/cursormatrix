@@ -8,6 +8,7 @@ pub enum Event {
     Raw(Input),
     Ctrl(Input),
     Meta(Input),
+    Shift(Input),
     TimeOut,
     TermSize(usize, usize),
 }
@@ -88,5 +89,18 @@ lazy_static! {
                                    })
                                    .flatten()
                                    .collect()
+    };
+    pub static ref MOD_ARROW_KEY_DICT: BTreeMap<Vec<u8>, Event> = {
+        let arrows = [("\u{1b}[1;5A", Event::Ctrl(Input::Arrow(Direction::Up))),
+                      ("\u{1b}[1;5B", Event::Ctrl(Input::Arrow(Direction::Down))),
+                      ("\u{1b}[1;5D", Event::Ctrl(Input::Arrow(Direction::Left))),
+                      ("\u{1b}[1;5C", Event::Ctrl(Input::Arrow(Direction::Right))),
+                      ("\u{1b}[1;2A", Event::Shift(Input::Arrow(Direction::Up))),
+                      ("\u{1b}[1;2B", Event::Shift(Input::Arrow(Direction::Down))),
+                      ("\u{1b}[1;2D", Event::Shift(Input::Arrow(Direction::Left))),
+                      ("\u{1b}[1;2C", Event::Shift(Input::Arrow(Direction::Right)))];
+        arrows.iter()
+              .map(|(k, v)| (k.chars().map(|c| c as u8).collect(), v.clone()))
+              .collect()
     };
 }

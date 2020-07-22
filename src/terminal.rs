@@ -1,5 +1,7 @@
 use crate::core::{Cursor, Matrix, TermInfo, TermiosCond, Tty};
-use crate::events::{Event, Input, CTRL_KEY_DICT, DEFAULT_KEY_DICT, META_KEY_DICT, TERMINFO_KEY_DICT};
+use crate::events::{
+    Event, Input, CTRL_KEY_DICT, DEFAULT_KEY_DICT, META_KEY_DICT, MOD_ARROW_KEY_DICT, TERMINFO_KEY_DICT,
+};
 use colored::Colorize;
 use crossbeam;
 use libc;
@@ -194,7 +196,7 @@ impl Term {
 
     fn loop_select(tty: &mut Tty, btx: Sender<u8>, etx: Sender<Event>) -> Result<(), Error> {
         let timeout: *mut libc::timeval = &mut libc::timeval { tv_sec: 0,
-                                                               tv_usec: 100000 };
+                                                               tv_usec: 1000 };
         let rawfd = tty.as_raw_fd();
         let mut readfds: libc::fd_set = unsafe { mem::zeroed() };
         loop {
@@ -284,6 +286,7 @@ impl Term {
         CTRL_KEY_DICT.iter()
                      .chain(META_KEY_DICT.iter())
                      .chain(DEFAULT_KEY_DICT.iter())
+                     .chain(MOD_ARROW_KEY_DICT.iter())
                      .chain(terminfo_dict.iter())
                      .map(|(k, v)| (k.clone(), v.clone()))
                      .collect()
