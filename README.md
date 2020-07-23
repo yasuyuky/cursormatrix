@@ -15,3 +15,7 @@ cargo test
 ```console
 cargo example --debug
 ```
+
+```console
+cat FILE | cargo example --filter
+```
