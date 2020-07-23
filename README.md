@@ -13,5 +13,5 @@ cargo test
 ## Example
 
 ```console
-cargo example --minieditor
+cargo example --debug
 ```
