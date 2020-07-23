@@ -21,7 +21,10 @@ fn handle_event(ev: &Event, term: &mut Term) -> bool {
         },
         &Event::Raw(Input::Delete) => term.cursor.backspace().unwrap(),
         &Event::Raw(Input::BackSpace) => term.cursor.backspace().unwrap(),
-        &Event::Raw(Input::Chars(ref s)) => term.print(s).unwrap(),
+        &Event::Raw(Input::Chars(ref s)) => {
+            let cs: Vec<String> = s.chars().map(|c| format!("{:02x}", c as usize)).collect();
+            term.print(&format!("{}:[{}]", s, cs.join(", "))).unwrap();
+        },
         &Event::TermSize(w, h) => term.matrix.refresh(w, h),
         e => {
             let pos = term.cursor.get_pos();
