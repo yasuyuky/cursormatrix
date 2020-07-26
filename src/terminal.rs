@@ -118,6 +118,15 @@ impl Term {
         self.cursor.move_to(x + w, y)
     }
 
+    pub fn push_colors(&mut self, fg: (u8, u8, u8), bg: (u8, u8, u8)) {
+        self.fg.push(fg);
+        self.bg.push(bg);
+    }
+
+    pub fn pop_colors(&mut self, fg: bool, bg: bool) -> (Option<(u8, u8, u8)>, Option<(u8, u8, u8)>) {
+        (if fg { self.fg.pop() } else { None }, if bg { self.bg.pop() } else { None })
+    }
+
     pub fn cprint(&mut self, s: &str, fg: Option<(u8, u8, u8)>, bg: Option<(u8, u8, u8)>) -> Result<(), Error> {
         bg.and_then(|c| Some(self.bg.push(c)));
         fg.and_then(|c| Some(self.fg.push(c)));
