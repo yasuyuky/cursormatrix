@@ -13,9 +13,9 @@ cargo test
 ## Example
 
 ```console
-cargo example --debug
+cargo run example --debug
 ```
 
 ```console
-cat FILE | cargo example --filter
+cat FILE | cargo run example --filter
 ```
