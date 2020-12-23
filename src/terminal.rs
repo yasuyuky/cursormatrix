@@ -20,6 +20,24 @@ use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 static SIGWINCH_RECIEVED: AtomicBool = AtomicBool::new(false);
 
+/// The main struct of cursormatrix crate
+///
+/// Example usage:
+/// ```
+/// fn main() {
+///     let (mut term, erx) = Term::with_input(true).expect("term");
+///
+///     term.print("edit").unwrap();
+///     loop {
+///         if match erx.recv() {
+///             Ok(ev) => !handle_event(&ev, &mut term),
+///             Err(_) => false,
+///         } {
+///             break;
+///         }
+///     }
+/// }
+/// ```
 #[allow(dead_code)]
 pub struct Term {
     pub cursor: Cursor,
