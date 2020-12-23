@@ -1,3 +1,4 @@
+use lazy_static::lazy_static;
 use std::clone::Clone;
 use std::collections::BTreeMap;
 use std::str::FromStr;
