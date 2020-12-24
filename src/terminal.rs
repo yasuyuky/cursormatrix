@@ -24,6 +24,24 @@ static SIGWINCH_RECIEVED: AtomicBool = AtomicBool::new(false);
 ///
 /// Example usage:
 /// ```
+/// use cursormatrix::{Direction, Event, Input, Term};
+///
+/// fn handle_event(ev: &Event, term: &mut Term) -> bool {
+///     match ev {
+///         &Event::Ctrl(Input::Chars(ref s)) => match s.as_str() {
+///             "C" => return false,
+///             _ => (),
+///         },
+///         &Event::Raw(Input::Arrow(Direction::Up)) => term.move_up().unwrap(),
+///         &Event::Raw(Input::Arrow(Direction::Down)) => term.move_down().unwrap(),
+///         &Event::Raw(Input::BackSpace) => term.cursor.backspace().unwrap(),
+///         &Event::Raw(Input::Chars(ref s)) => term.print(&format!("{}", s)).unwrap(),
+///         &Event::TermSize(w, h) => term.matrix.refresh(w, h),
+///         _ => (),
+///     }
+///     true
+/// }
+///
 /// fn main() {
 ///     let (mut term, erx) = Term::with_input(true).expect("term");
 ///
