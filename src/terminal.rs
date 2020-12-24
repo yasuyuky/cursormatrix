@@ -35,7 +35,7 @@ static SIGWINCH_RECIEVED: AtomicBool = AtomicBool::new(false);
 ///         &Event::Raw(Input::Arrow(Direction::Up)) => term.move_up().unwrap(),
 ///         &Event::Raw(Input::Arrow(Direction::Down)) => term.move_down().unwrap(),
 ///         &Event::Raw(Input::BackSpace) => term.cursor.backspace().unwrap(),
-///         &Event::Raw(Input::Chars(ref s)) => term.print(&format!("{}", s)).unwrap(),
+///         &Event::Raw(Input::Chars(ref s)) => term.print(&s).unwrap(),
 ///         &Event::TermSize(w, h) => term.matrix.refresh(w, h),
 ///         _ => (),
 ///     }
