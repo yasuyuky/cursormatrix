@@ -1,6 +1,6 @@
 # cursormatrix
 
-TUI Library for Rust
+Simple and naive TUI Library for Rust
 
 ![ci status](https://github.com/yasuyuky/cursormatrix/workflows/Rust/badge.svg)
 
