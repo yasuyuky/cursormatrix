@@ -8,7 +8,7 @@ repository = "https://github.com/yasuyuky/cursormatrix"
 description = "Simple and naive TUI Library for Rust"
 
 [dependencies]
-term = "0.6"
+term = "0.7"
 termios = "0.3"
 libc = "0.2"
 lazy_static = "1.0"
