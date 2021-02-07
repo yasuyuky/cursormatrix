@@ -3,8 +3,6 @@ use crate::events::{
     Event, Input, CTRL_KEY_DICT, DEFAULT_KEY_DICT, META_KEY_DICT, MOD_ARROW_KEY_DICT, TERMINFO_KEY_DICT,
 };
 use colored::Colorize;
-use crossbeam;
-use libc;
 use std::collections::BTreeMap;
 use std::collections::Bound::*;
 use std::io::{stdout, Error, ErrorKind, Write};
