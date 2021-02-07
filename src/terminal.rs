@@ -162,8 +162,8 @@ impl Term {
     }
 
     pub fn cprint(&mut self, s: &str, fg: Option<(u8, u8, u8)>, bg: Option<(u8, u8, u8)>) -> Result<(), Error> {
-        bg.and_then(|c| Some(self.bg.push(c)));
-        fg.and_then(|c| Some(self.fg.push(c)));
+        bg.map(|c| self.bg.push(c));
+        fg.map(|c| self.fg.push(c));
         self.print(s)?;
         fg.and_then(|_| self.fg.pop());
         bg.and_then(|_| self.bg.pop());
