@@ -3,8 +3,6 @@ use crate::events::{
     Event, Input, CTRL_KEY_DICT, DEFAULT_KEY_DICT, META_KEY_DICT, MOD_ARROW_KEY_DICT, TERMINFO_KEY_DICT,
 };
 use colored::Colorize;
-use crossbeam;
-use libc;
 use std::collections::BTreeMap;
 use std::collections::Bound::*;
 use std::io::{stdout, Error, ErrorKind, Write};
@@ -164,8 +162,8 @@ impl Term {
     }
 
     pub fn cprint(&mut self, s: &str, fg: Option<(u8, u8, u8)>, bg: Option<(u8, u8, u8)>) -> Result<(), Error> {
-        bg.and_then(|c| Some(self.bg.push(c)));
-        fg.and_then(|c| Some(self.fg.push(c)));
+        bg.map(|c| self.bg.push(c));
+        fg.map(|c| self.fg.push(c));
         self.print(s)?;
         fg.and_then(|_| self.fg.pop());
         bg.and_then(|_| self.bg.pop());
@@ -236,7 +234,8 @@ impl Term {
         for b in buf.iter() {
             btx.send(*b).unwrap()
         }
-        Ok(buf.clear())
+        buf.clear();
+        Ok(())
     }
 
     fn loop_select(tty: &mut Tty, btx: Sender<u8>, etx: Sender<Event>) -> Result<(), Error> {
