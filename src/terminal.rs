@@ -234,7 +234,8 @@ impl Term {
         for b in buf.iter() {
             btx.send(*b).unwrap()
         }
-        Ok(buf.clear())
+        buf.clear();
+        Ok(())
     }
 
     fn loop_select(tty: &mut Tty, btx: Sender<u8>, etx: Sender<Event>) -> Result<(), Error> {
