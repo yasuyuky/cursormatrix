@@ -322,10 +322,7 @@ impl Term {
         let terminfo_dict = terminfo.info
                                     .strings
                                     .iter()
-                                    .filter_map(|(k, v)| match TERMINFO_KEY_DICT.get(*k) {
-                                        Some(e) => Some((v.clone(), e.clone())),
-                                        None => None,
-                                    })
+                                    .filter_map(|(k, v)| TERMINFO_KEY_DICT.get(*k).map(|e| (v.clone(), e.clone())))
                                     .collect::<BTreeMap<Vec<u8>, Event>>();
         CTRL_KEY_DICT.iter()
                      .chain(META_KEY_DICT.iter())
