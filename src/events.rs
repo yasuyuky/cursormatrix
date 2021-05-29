@@ -30,6 +30,12 @@ impl FromStr for Event {
     }
 }
 
+#[test]
+fn test_deserialize_event() {
+    let ctrl_s = Event::from_str("ctrl+s").unwrap();
+    assert_eq!(ctrl_s, Event::Ctrl(Input::Chars("s".to_owned())));
+}
+
 #[allow(dead_code)]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Input {
