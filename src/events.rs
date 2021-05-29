@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use std::clone::Clone;
 use std::collections::BTreeMap;
+use std::io;
 use std::str::FromStr;
 
 #[allow(dead_code)]
@@ -38,6 +39,19 @@ pub enum Direction {
     Down,
     Left,
     Right,
+}
+
+impl FromStr for Direction {
+    type Err = io::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "up" => Ok(Self::Up),
+            "down" => Ok(Self::Down),
+            "left" => Ok(Self::Left),
+            "right" => Ok(Self::Right),
+            _ => Err(io::Error::new(io::ErrorKind::InvalidData, "cannot parse")),
+        }
+    }
 }
 
 lazy_static! {
