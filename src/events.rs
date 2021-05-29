@@ -33,6 +33,35 @@ pub enum Input {
     End,
 }
 
+impl FromStr for Input {
+    type Err = io::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "return" => Ok(Self::Return),
+            "enter" => Ok(Self::Enter),
+            "tab" => Ok(Self::Tab),
+            "backspace" => Ok(Self::BackSpace),
+            "delete" => Ok(Self::Delete),
+            "escape" => Ok(Self::Escape),
+            "home" => Ok(Self::Home),
+            "end" => Ok(Self::End),
+            "pageup" => Ok(Self::Page(Direction::Up)),
+            "pagedown" => Ok(Self::Page(Direction::Down)),
+            "scrollup" => Ok(Self::Scroll(Direction::Up)),
+            "scrolldown" => Ok(Self::Scroll(Direction::Down)),
+            s => {
+                if Direction::from_str(s).is_ok() {
+                    Ok(Self::Arrow(Direction::from_str(s)?))
+                } else if s.len() > 1 && s.starts_with("f") {
+                    Ok(Self::Function(s[1..].parse::<u8>().unwrap_or_default()))
+                } else {
+                    Ok(Self::Chars(s.to_owned()))
+                }
+            },
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Direction {
     Up,
