@@ -15,6 +15,21 @@ pub enum Event {
     TermSize(usize, usize),
 }
 
+impl FromStr for Event {
+    type Err = io::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.starts_with("ctrl+") {
+            Ok(Self::Ctrl(Input::from_str(&s[5..])?))
+        } else if s.starts_with("meta+") {
+            Ok(Self::Meta(Input::from_str(&s[5..])?))
+        } else if s.starts_with("shift+") {
+            Ok(Self::Shift(Input::from_str(&s[6..])?))
+        } else {
+            Ok(Self::Raw(Input::from_str(s)?))
+        }
+    }
+}
+
 #[allow(dead_code)]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Input {
