@@ -34,6 +34,8 @@ impl FromStr for Event {
 fn test_deserialize_event() {
     let ctrl_s = Event::from_str("ctrl+s").unwrap();
     assert_eq!(ctrl_s, Event::Ctrl(Input::Chars("s".to_owned())));
+    let meta_up = Event::from_str("meta+up").unwrap();
+    assert_eq!(meta_up, Event::Meta(Input::Arrow(Direction::Up)));
 }
 
 #[allow(dead_code)]
