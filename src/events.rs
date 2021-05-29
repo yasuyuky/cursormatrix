@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use std::clone::Clone;
 use std::collections::BTreeMap;
+use std::io;
 use std::str::FromStr;
 
 #[allow(dead_code)]
@@ -12,6 +13,29 @@ pub enum Event {
     Shift(Input),
     TimeOut,
     TermSize(usize, usize),
+}
+
+impl FromStr for Event {
+    type Err = io::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.starts_with("ctrl+") {
+            Ok(Self::Ctrl(Input::from_str(&s[5..])?))
+        } else if s.starts_with("meta+") {
+            Ok(Self::Meta(Input::from_str(&s[5..])?))
+        } else if s.starts_with("shift+") {
+            Ok(Self::Shift(Input::from_str(&s[6..])?))
+        } else {
+            Ok(Self::Raw(Input::from_str(s)?))
+        }
+    }
+}
+
+#[test]
+fn test_deserialize_event() {
+    let ctrl_s = Event::from_str("ctrl+s").unwrap();
+    assert_eq!(ctrl_s, Event::Ctrl(Input::Chars("s".to_owned())));
+    let meta_up = Event::from_str("meta+up").unwrap();
+    assert_eq!(meta_up, Event::Meta(Input::Arrow(Direction::Up)));
 }
 
 #[allow(dead_code)]
@@ -32,12 +56,54 @@ pub enum Input {
     End,
 }
 
+impl FromStr for Input {
+    type Err = io::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "return" => Ok(Self::Return),
+            "enter" => Ok(Self::Enter),
+            "tab" => Ok(Self::Tab),
+            "backspace" => Ok(Self::BackSpace),
+            "delete" => Ok(Self::Delete),
+            "escape" => Ok(Self::Escape),
+            "home" => Ok(Self::Home),
+            "end" => Ok(Self::End),
+            "pageup" => Ok(Self::Page(Direction::Up)),
+            "pagedown" => Ok(Self::Page(Direction::Down)),
+            "scrollup" => Ok(Self::Scroll(Direction::Up)),
+            "scrolldown" => Ok(Self::Scroll(Direction::Down)),
+            s => {
+                if Direction::from_str(s).is_ok() {
+                    Ok(Self::Arrow(Direction::from_str(s)?))
+                } else if s.len() > 1 && s.starts_with("f") {
+                    Ok(Self::Function(s[1..].parse::<u8>().unwrap_or_default()))
+                } else {
+                    Ok(Self::Chars(s.to_owned()))
+                }
+            },
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Direction {
     Up,
     Down,
     Left,
     Right,
+}
+
+impl FromStr for Direction {
+    type Err = io::Error;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "up" => Ok(Self::Up),
+            "down" => Ok(Self::Down),
+            "left" => Ok(Self::Left),
+            "right" => Ok(Self::Right),
+            _ => Err(io::Error::new(io::ErrorKind::InvalidData, "cannot parse")),
+        }
+    }
 }
 
 lazy_static! {
