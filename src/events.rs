@@ -86,6 +86,26 @@ impl FromStr for Input {
     }
 }
 
+impl ToString for Input {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Chars(s) => s.to_owned(),
+            Self::Function(n) => format!("f{}", n),
+            Self::Arrow(d) => d.to_string(),
+            Self::Scroll(d) => format!("scroll{}", d.to_string()),
+            Self::Page(d) => format!("page{}", d.to_string()),
+            Self::Return => "return".to_owned(),
+            Self::Enter => "enter".to_owned(),
+            Self::Tab => "tab".to_owned(),
+            Self::BackSpace => "backspace".to_owned(),
+            Self::Delete => "delete".to_owned(),
+            Self::Escape => "escape".to_owned(),
+            Self::Home => "home".to_owned(),
+            Self::End => "end".to_owned(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Direction {
     Up,
