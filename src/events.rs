@@ -101,21 +101,21 @@ impl FromStr for Input {
 
 impl fmt::Display for Input {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", match self {
-            Self::Chars(s) => s.to_owned(),
-            Self::Function(n) => format!("f{}", n),
-            Self::Arrow(d) => d.to_string(),
-            Self::Scroll(d) => format!("scroll{}", d.to_string()),
-            Self::Page(d) => format!("page{}", d.to_string()),
-            Self::Return => "return".to_owned(),
-            Self::Enter => "enter".to_owned(),
-            Self::Tab => "tab".to_owned(),
-            Self::BackSpace => "backspace".to_owned(),
-            Self::Delete => "delete".to_owned(),
-            Self::Escape => "escape".to_owned(),
-            Self::Home => "home".to_owned(),
-            Self::End => "end".to_owned(),
-        })
+        match self {
+            Self::Chars(s) => write!(f, "{}", s),
+            Self::Function(n) => write!(f, "f{}", n),
+            Self::Arrow(d) => write!(f, "{}", d),
+            Self::Scroll(d) => write!(f, "scroll{}", d),
+            Self::Page(d) => write!(f, "page{}", d),
+            Self::Return => write!(f, "return"),
+            Self::Enter => write!(f, "enter"),
+            Self::Tab => write!(f, "tab"),
+            Self::BackSpace => write!(f, "backspace"),
+            Self::Delete => write!(f, "delete"),
+            Self::Escape => write!(f, "escape"),
+            Self::Home => write!(f, "home"),
+            Self::End => write!(f, "end"),
+        }
     }
 }
 
