@@ -1,9 +1,9 @@
 use lazy_static::lazy_static;
 use std::clone::Clone;
 use std::collections::BTreeMap;
+use std::fmt;
 use std::io;
 use std::str::FromStr;
-use std::string::ToString;
 
 #[allow(dead_code)]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -31,16 +31,16 @@ impl FromStr for Event {
     }
 }
 
-impl ToString for Event {
-    fn to_string(&self) -> String {
-        match self {
+impl fmt::Display for Event {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", match self {
             Self::Raw(i) => i.to_string(),
             Self::Ctrl(i) => format!("ctrl+{}", i.to_string()),
             Self::Meta(i) => format!("meta+{}", i.to_string()),
             Self::Shift(i) => format!("shift+{}", i.to_string()),
             Self::TimeOut => "timeout".to_owned(),
             Self::TermSize(x, y) => format!("({},{})", x, y),
-        }
+        })
     }
 }
 
@@ -99,9 +99,9 @@ impl FromStr for Input {
     }
 }
 
-impl ToString for Input {
-    fn to_string(&self) -> String {
-        match self {
+impl fmt::Display for Input {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", match self {
             Self::Chars(s) => s.to_owned(),
             Self::Function(n) => format!("f{}", n),
             Self::Arrow(d) => d.to_string(),
@@ -115,7 +115,7 @@ impl ToString for Input {
             Self::Escape => "escape".to_owned(),
             Self::Home => "home".to_owned(),
             Self::End => "end".to_owned(),
-        }
+        })
     }
 }
 
@@ -140,14 +140,14 @@ impl FromStr for Direction {
     }
 }
 
-impl ToString for Direction {
-    fn to_string(&self) -> String {
-        match self {
+impl fmt::Display for Direction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", match self {
             Self::Up => "up",
             Self::Down => "down",
             Self::Left => "left",
             Self::Right => "right",
-        }.to_owned()
+        })
     }
 }
 
