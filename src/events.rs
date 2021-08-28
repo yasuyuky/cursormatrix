@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 use std::clone::Clone;
 use std::collections::BTreeMap;
+use std::fmt;
 use std::io;
 use std::str::FromStr;
 
@@ -26,6 +27,19 @@ impl FromStr for Event {
             Ok(Self::Shift(Input::from_str(&s[6..])?))
         } else {
             Ok(Self::Raw(Input::from_str(s)?))
+        }
+    }
+}
+
+impl fmt::Display for Event {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Raw(i) => write!(f, "{}", i),
+            Self::Ctrl(i) => write!(f, "ctrl+{}", i),
+            Self::Meta(i) => write!(f, "meta+{}", i),
+            Self::Shift(i) => write!(f, "shift+{}", i),
+            Self::TimeOut => write!(f, "timeout"),
+            Self::TermSize(x, y) => write!(f, "({},{})", x, y),
         }
     }
 }
@@ -85,6 +99,26 @@ impl FromStr for Input {
     }
 }
 
+impl fmt::Display for Input {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Chars(s) => write!(f, "{}", s),
+            Self::Function(n) => write!(f, "f{}", n),
+            Self::Arrow(d) => write!(f, "{}", d),
+            Self::Scroll(d) => write!(f, "scroll{}", d),
+            Self::Page(d) => write!(f, "page{}", d),
+            Self::Return => write!(f, "return"),
+            Self::Enter => write!(f, "enter"),
+            Self::Tab => write!(f, "tab"),
+            Self::BackSpace => write!(f, "backspace"),
+            Self::Delete => write!(f, "delete"),
+            Self::Escape => write!(f, "escape"),
+            Self::Home => write!(f, "home"),
+            Self::End => write!(f, "end"),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Direction {
     Up,
@@ -103,6 +137,17 @@ impl FromStr for Direction {
             "right" => Ok(Self::Right),
             _ => Err(io::Error::new(io::ErrorKind::InvalidData, "cannot parse")),
         }
+    }
+}
+
+impl fmt::Display for Direction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", match self {
+            Self::Up => "up",
+            Self::Down => "down",
+            Self::Left => "left",
+            Self::Right => "right",
+        })
     }
 }
 
