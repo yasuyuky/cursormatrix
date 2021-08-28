@@ -3,6 +3,7 @@ use std::clone::Clone;
 use std::collections::BTreeMap;
 use std::io;
 use std::str::FromStr;
+use std::string::ToString;
 
 #[allow(dead_code)]
 #[derive(Clone, Debug, Eq, PartialEq)]
