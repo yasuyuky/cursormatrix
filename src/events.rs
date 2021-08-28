@@ -2,11 +2,12 @@ use lazy_static::lazy_static;
 use std::clone::Clone;
 use std::collections::BTreeMap;
 use std::fmt;
+use std::hash::Hash;
 use std::io;
 use std::str::FromStr;
 
 #[allow(dead_code)]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Event {
     Raw(Input),
     Ctrl(Input),
@@ -53,7 +54,7 @@ fn test_deserialize_event() {
 }
 
 #[allow(dead_code)]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Input {
     Chars(String),
     Function(u8),
@@ -119,7 +120,7 @@ impl fmt::Display for Input {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Direction {
     Up,
     Down,
