@@ -107,6 +107,17 @@ impl FromStr for Direction {
     }
 }
 
+impl ToString for Direction {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Up => "up",
+            Self::Down => "down",
+            Self::Left => "left",
+            Self::Right => "right",
+        }.to_owned()
+    }
+}
+
 lazy_static! {
     pub static ref CTRL_KEY_DICT: BTreeMap<Vec<u8>, Event> =
         (0u8..32).map(|x| (vec![x], Event::Ctrl(Input::Chars(((x + 64) as char).to_string()))))
