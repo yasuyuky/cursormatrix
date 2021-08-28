@@ -31,6 +31,19 @@ impl FromStr for Event {
     }
 }
 
+impl ToString for Event {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Raw(i) => i.to_string(),
+            Self::Ctrl(i) => format!("ctrl+{}", i.to_string()),
+            Self::Meta(i) => format!("meta+{}", i.to_string()),
+            Self::Shift(i) => format!("shift+{}", i.to_string()),
+            Self::TimeOut => "timeout".to_owned(),
+            Self::TermSize(x, y) => format!("({},{})", x, y),
+        }
+    }
+}
+
 #[test]
 fn test_deserialize_event() {
     let ctrl_s = Event::from_str("ctrl+s").unwrap();
