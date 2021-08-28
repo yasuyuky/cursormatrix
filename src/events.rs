@@ -33,14 +33,14 @@ impl FromStr for Event {
 
 impl fmt::Display for Event {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", match self {
-            Self::Raw(i) => i.to_string(),
-            Self::Ctrl(i) => format!("ctrl+{}", i.to_string()),
-            Self::Meta(i) => format!("meta+{}", i.to_string()),
-            Self::Shift(i) => format!("shift+{}", i.to_string()),
-            Self::TimeOut => "timeout".to_owned(),
-            Self::TermSize(x, y) => format!("({},{})", x, y),
-        })
+        match self {
+            Self::Raw(i) => write!(f, "{}", i),
+            Self::Ctrl(i) => write!(f, "ctrl+{}", i),
+            Self::Meta(i) => write!(f, "meta+{}", i),
+            Self::Shift(i) => write!(f, "shift+{}", i),
+            Self::TimeOut => write!(f, "timeout"),
+            Self::TermSize(x, y) => write!(f, "({},{})", x, y),
+        }
     }
 }
 
