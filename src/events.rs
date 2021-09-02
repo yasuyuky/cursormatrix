@@ -20,12 +20,12 @@ pub enum Event {
 impl FromStr for Event {
     type Err = io::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.starts_with("ctrl+") {
-            Ok(Self::Ctrl(Input::from_str(&s[5..])?))
-        } else if s.starts_with("meta+") {
-            Ok(Self::Meta(Input::from_str(&s[5..])?))
-        } else if s.starts_with("shift+") {
-            Ok(Self::Shift(Input::from_str(&s[6..])?))
+        if let Some(stripped) = s.strip_prefix("ctrl+") {
+            Ok(Self::Ctrl(Input::from_str(stripped)?))
+        } else if let Some(stripped) = s.strip_prefix("meta+") {
+            Ok(Self::Meta(Input::from_str(stripped)?))
+        } else if let Some(stripped) = s.strip_prefix("shift+") {
+            Ok(Self::Shift(Input::from_str(stripped)?))
         } else {
             Ok(Self::Raw(Input::from_str(s)?))
         }
