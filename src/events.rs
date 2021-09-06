@@ -21,7 +21,7 @@ impl FromStr for Event {
     type Err = io::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let Some(stripped) = s.strip_prefix("ctrl+") {
-            Ok(Self::Ctrl(Input::from_str(stripped)?))
+            Ok(Self::Ctrl(Input::from_str(&stripped.to_uppercase())?))
         } else if let Some(stripped) = s.strip_prefix("meta+") {
             Ok(Self::Meta(Input::from_str(stripped)?))
         } else if let Some(stripped) = s.strip_prefix("shift+") {
