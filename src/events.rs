@@ -21,7 +21,7 @@ impl FromStr for Event {
     type Err = io::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let Some(stripped) = s.strip_prefix("ctrl+") {
-            Ok(Self::Ctrl(Input::from_str(stripped)?))
+            Ok(Self::Ctrl(Input::from_str(&stripped.to_uppercase())?))
         } else if let Some(stripped) = s.strip_prefix("meta+") {
             Ok(Self::Meta(Input::from_str(stripped)?))
         } else if let Some(stripped) = s.strip_prefix("shift+") {
@@ -48,7 +48,7 @@ impl fmt::Display for Event {
 #[test]
 fn test_deserialize_event() {
     let ctrl_s = Event::from_str("ctrl+s").unwrap();
-    assert_eq!(ctrl_s, Event::Ctrl(Input::Chars("s".to_owned())));
+    assert_eq!(ctrl_s, Event::Ctrl(Input::Chars("S".to_owned())));
     let meta_up = Event::from_str("meta+up").unwrap();
     assert_eq!(meta_up, Event::Meta(Input::Arrow(Direction::Up)));
 }

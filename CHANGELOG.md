@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Tweak FromStr for Event
+
 ## [0.3.0] - 2021-08-29
 
 - Implement fmt::Display
