@@ -2,7 +2,7 @@
 name = "cursormatrix"
 version = "0.3.0"
 authors = ["Yasuyuki YAMADA <yasuyuki.ymd@gmail.com>"]
-edition = '2018'
+edition = '2021'
 license = "MIT"
 repository = "https://github.com/yasuyuky/cursormatrix"
 description = "Simple and naive TUI Library for Rust"
