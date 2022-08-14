@@ -6,7 +6,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: rust:1.62.1
+    container: rust:1.63.0
 
     steps:
     - uses: actions/checkout@v1
