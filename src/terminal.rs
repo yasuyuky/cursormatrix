@@ -261,13 +261,13 @@ impl Term {
     }
 
     fn get_input(patterns: BTreeMap<Vec<u8>, Event>, etx: Sender<Event>) -> Result<(), Error> {
-        crossbeam::scope(|scope| {
+        thread::scope(|scope| {
             let (btx, brx) = channel::<u8>();
             let etx_input = etx.clone();
-            scope.spawn(move |_| Self::recieve_to_convert(&patterns, brx, etx_input));
+            scope.spawn(move || Self::recieve_to_convert(&patterns, brx, etx_input));
             let mut tty = Tty::new()?;
             Self::loop_select(&mut tty, btx, etx)
-        }).unwrap()
+        })
     }
 
     fn recieve_to_convert(patterns: &BTreeMap<Vec<u8>, Event>, brx: Receiver<u8>, etx: Sender<Event>) {
