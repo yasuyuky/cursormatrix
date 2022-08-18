@@ -278,7 +278,7 @@ impl Term {
             match brx.recv_timeout(timeout) {
                 Ok(b) => {
                     buf.push(b);
-                    let (dur, cont) = Self::handle_as_pattern(&buf, &patterns, &etx);
+                    let (dur, cont) = Self::handle_as_pattern(&buf, patterns, &etx);
                     timeout = Duration::from_millis(dur);
                     if cont {
                         continue 'recv_byte;
@@ -309,7 +309,7 @@ impl Term {
                 if buf.iter().enumerate().all(|(i, &x)| x == k[i]) {
                     (1, true)
                 } else {
-                    etx.send(Self::convert_to_event(&patterns, &buf).unwrap()).unwrap();
+                    etx.send(Self::convert_to_event(patterns, buf).unwrap()).unwrap();
                     (1000, false)
                 }
             },
