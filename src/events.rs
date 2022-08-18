@@ -90,7 +90,7 @@ impl FromStr for Input {
             s => {
                 if Direction::from_str(s).is_ok() {
                     Ok(Self::Arrow(Direction::from_str(s)?))
-                } else if s.len() > 1 && s.starts_with("f") {
+                } else if s.len() > 1 && s.starts_with('f') {
                     Ok(Self::Function(s[1..].parse::<u8>().unwrap_or_default()))
                 } else {
                     Ok(Self::Chars(s.to_owned()))
