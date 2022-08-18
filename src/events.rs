@@ -90,7 +90,7 @@ impl FromStr for Input {
             s => {
                 if Direction::from_str(s).is_ok() {
                     Ok(Self::Arrow(Direction::from_str(s)?))
-                } else if s.len() > 1 && s.starts_with("f") {
+                } else if s.len() > 1 && s.starts_with('f') {
                     Ok(Self::Function(s[1..].parse::<u8>().unwrap_or_default()))
                 } else {
                     Ok(Self::Chars(s.to_owned()))
@@ -195,12 +195,11 @@ lazy_static! {
          ("\r", Input::Return),
          ("\u{1b}", Input::Escape),
          ("\u{7f}", Input::Delete)].iter()
-                                   .map(|(k, v)| {
+                                   .flat_map(|(k, v)| {
                                        vec![(k.chars().map(|c| c as u8).collect(), Event::Raw(v.clone())),
                                             ((String::from("\u{1b}") + k).chars().map(|c| c as u8).collect(),
                                              Event::Meta(v.clone())),]
                                    })
-                                   .flatten()
                                    .collect()
     };
     pub static ref MOD_ARROW_KEY_DICT: BTreeMap<Vec<u8>, Event> = {
