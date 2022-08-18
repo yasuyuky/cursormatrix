@@ -278,29 +278,12 @@ impl Term {
             match brx.recv_timeout(timeout) {
                 Ok(b) => {
                     buf.push(b);
-                    match patterns.get(&buf) {
-                        Some(_) => match patterns.range::<Vec<u8>, _>((Excluded(&buf), Unbounded::<&Vec<u8>>))
-                                                 .next()
-                        {
-                            Some((ref k, _)) => {
-                                if buf.iter().enumerate().all(|(i, &x)| x == k[i]) {
-                                    timeout = Duration::from_millis(1);
-                                    continue 'recv_byte;
-                                } else {
-                                    etx.send(Self::convert_to_event(&patterns, &buf).unwrap()).unwrap();
-                                    buf.clear();
-                                    timeout = Duration::from_millis(1000);
-                                }
-                            },
-                            None => {
-                                timeout = Duration::from_millis(1);
-                                continue 'recv_byte;
-                            },
-                        },
-                        None => {
-                            timeout = Duration::from_millis(1);
-                            continue 'recv_byte;
-                        },
+                    let (dur, cont) = Self::handle_as_pattern(&buf, &patterns, &etx);
+                    timeout = Duration::from_millis(dur);
+                    if cont {
+                        continue 'recv_byte;
+                    } else {
+                        buf.clear()
                     }
                 },
                 Err(_) => match buf.len() {
@@ -315,6 +298,22 @@ impl Term {
                     },
                 },
             }
+        }
+    }
+
+    fn handle_as_pattern(buf: &Vec<u8>, patterns: &BTreeMap<Vec<u8>, Event>, etx: &Sender<Event>) -> (u64, bool) {
+        match patterns.range::<Vec<u8>, _>((Excluded(buf), Unbounded::<&Vec<u8>>))
+                      .next()
+        {
+            Some((k, _)) => {
+                if buf.iter().enumerate().all(|(i, &x)| x == k[i]) {
+                    return (1, true);
+                } else {
+                    etx.send(Self::convert_to_event(&patterns, &buf).unwrap()).unwrap();
+                    return (1000, false);
+                }
+            },
+            None => return (1, true),
         }
     }
 
@@ -344,7 +343,7 @@ impl Term {
     }
 
     fn load_winsize(tty: &Tty) -> Result<(usize, usize), Error> {
-        let mut ws: libc::winsize = unsafe { mem::MaybeUninit::uninit().assume_init() };
+        let mut ws: libc::winsize = unsafe { mem::MaybeUninit::zeroed().assume_init() };
         let res = unsafe { libc::ioctl(tty.as_raw_fd(), libc::TIOCGWINSZ, &mut ws) };
         if res != 0 {
             return Err(Error::last_os_error());
