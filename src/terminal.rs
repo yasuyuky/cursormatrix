@@ -307,13 +307,13 @@ impl Term {
         {
             Some((k, _)) => {
                 if buf.iter().enumerate().all(|(i, &x)| x == k[i]) {
-                    return (1, true);
+                    (1, true)
                 } else {
                     etx.send(Self::convert_to_event(&patterns, &buf).unwrap()).unwrap();
-                    return (1000, false);
+                    (1000, false)
                 }
             },
-            None => return (1, true),
+            None => (1, true),
         }
     }
 
