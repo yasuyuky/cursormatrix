@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Tweak FromStr for Event
+- Use std::thread::scope instead of crossbeam::scope
 
 ## [0.3.0] - 2021-08-29
 
