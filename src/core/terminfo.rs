@@ -28,7 +28,7 @@ impl TermInfo {
         let mut ret: String = s.replace("%i", "");
         for (i, a) in vecarg.iter().enumerate() {
             let from = format!("%p{}%d", i + 1);
-            let to = format!("{}", a);
+            let to = format!("{a}");
             ret = ret.replace(from.as_str(), to.as_str());
         }
         ret
