@@ -35,12 +35,12 @@ impl FromStr for Event {
 impl fmt::Display for Event {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Raw(i) => write!(f, "{}", i),
-            Self::Ctrl(i) => write!(f, "ctrl+{}", i),
-            Self::Meta(i) => write!(f, "meta+{}", i),
-            Self::Shift(i) => write!(f, "shift+{}", i),
+            Self::Raw(i) => write!(f, "{i}"),
+            Self::Ctrl(i) => write!(f, "ctrl+{i}"),
+            Self::Meta(i) => write!(f, "meta+{i}"),
+            Self::Shift(i) => write!(f, "shift+{i}"),
             Self::TimeOut => write!(f, "timeout"),
-            Self::TermSize(x, y) => write!(f, "({},{})", x, y),
+            Self::TermSize(x, y) => write!(f, "({x},{y})"),
         }
     }
 }
@@ -103,11 +103,11 @@ impl FromStr for Input {
 impl fmt::Display for Input {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Chars(s) => write!(f, "{}", s),
-            Self::Function(n) => write!(f, "f{}", n),
-            Self::Arrow(d) => write!(f, "{}", d),
-            Self::Scroll(d) => write!(f, "scroll{}", d),
-            Self::Page(d) => write!(f, "page{}", d),
+            Self::Chars(s) => write!(f, "{s}"),
+            Self::Function(n) => write!(f, "f{n}"),
+            Self::Arrow(d) => write!(f, "{d}"),
+            Self::Scroll(d) => write!(f, "scroll{d}"),
+            Self::Page(d) => write!(f, "page{d}"),
             Self::Return => write!(f, "return"),
             Self::Enter => write!(f, "enter"),
             Self::Tab => write!(f, "tab"),
@@ -177,7 +177,7 @@ lazy_static! {
                                                                     (String::from_str(k).unwrap(), v.clone())
                                                                 })
                                                                 .chain((0u8..64).map(|i| {
-                                                                                    (format!("key_f{}", i),
+                                                                                    (format!("key_f{i}"),
                                                                                      Event::Raw(Input::Function(i)))
                                                                                 }))
                                                                 .collect()

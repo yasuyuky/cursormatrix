@@ -215,7 +215,7 @@ impl Term {
 
     fn write_command_with_args(&mut self, command: &str, args: &[usize]) -> Result<(), Error> {
         let s = TermInfo::format(&self.terminfo.get_string(command), args);
-        stdout().write_fmt(format_args!("{}", s))?;
+        stdout().write_fmt(format_args!("{s}"))?;
         stdout().flush()
     }
 
