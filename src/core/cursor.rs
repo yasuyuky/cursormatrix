@@ -52,7 +52,7 @@ impl Cursor {
     }
 
     pub fn print(&mut self, s: &str) -> Result<(), Error> {
-        stdout().write_fmt(format_args!("{}", s))?;
+        stdout().write_fmt(format_args!("{s}"))?;
         stdout().flush()
     }
 
@@ -117,13 +117,13 @@ impl Cursor {
     }
 
     pub fn write_raw_command(command: &str) -> Result<(), Error> {
-        stdout().write_fmt(format_args!("{}", command))?;
+        stdout().write_fmt(format_args!("{command}"))?;
         stdout().flush()
     }
 
     pub fn write_command_with_args(command: &str, args: &[usize]) -> Result<(), Error> {
         let s = TermInfo::format(command, args);
-        stdout().write_fmt(format_args!("{}", s))?;
+        stdout().write_fmt(format_args!("{s}"))?;
         stdout().flush()
     }
 }
