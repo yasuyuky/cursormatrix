@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: rust:1.85.0
+    container: rust:1.85.1
 
     steps:
       - uses: actions/checkout@v4
