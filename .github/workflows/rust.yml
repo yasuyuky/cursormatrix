@@ -8,7 +8,7 @@ jobs:
     container: rust:1.91.1
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Build
         run: cargo build --verbose
 #     - name: Run tests
